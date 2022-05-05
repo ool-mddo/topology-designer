@@ -18,6 +18,7 @@ type Props = {
   onChangePos?: (pos: Vector2d) => void;
   onMouseUp?: (e: KonvaEventObject<MouseEvent>) => void;
   onMouseDown?: (e: KonvaEventObject<MouseEvent>) => void;
+  onContextMenu?: (e: KonvaEventObject<PointerEvent>) => void;
 };
 
 const RouterNode: FC<Props> = ({
@@ -25,6 +26,7 @@ const RouterNode: FC<Props> = ({
   onChangePos,
   onMouseUp,
   onMouseDown,
+  onContextMenu,
   draggable = false,
 }) => {
   console.log("[render] RouterNode");
@@ -58,6 +60,10 @@ const RouterNode: FC<Props> = ({
       onMouseDown(e);
     }
   };
+  const onContextMenuHandler = (e: KonvaEventObject<PointerEvent>) => {
+    e.evt.preventDefault();
+    if (onContextMenu) onContextMenu(e);
+  };
   return (
     <Group
       x={pos.x}
@@ -82,6 +88,7 @@ const RouterNode: FC<Props> = ({
         y={routerIconPos.y}
         width={routerIconSize}
         height={routerIconSize}
+        onContextMenu={onContextMenuHandler}
       />
     </Group>
   );

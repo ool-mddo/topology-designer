@@ -74,3 +74,27 @@ export const createNodeModalState = atom<CreateNodeModalState>({
     isOpen: false,
   },
 });
+
+export const routerNodeMenuState = atom<{
+  isOpen: boolean;
+  node: Node | null;
+  pos: Vector2d | null;
+}>({
+  key: "RouterNodeMenuState",
+  default: {
+    isOpen: false,
+    node: null,
+    pos: null,
+  },
+});
+
+export const createInterfaceModalState = atom<{
+  isOpen: boolean;
+  node: Node | null;
+}>({
+  key: "CreateIFModalState",
+  default: {
+    isOpen: false,
+    node: null,
+  },
+});

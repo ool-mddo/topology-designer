@@ -3,12 +3,14 @@ import { Layer, Line, Stage } from "react-konva";
 import { Intent, Node as NodeIntent, Link as LinkIntent } from "models/intent";
 import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil";
 import {
+  createInterfaceModalState,
   createLinkState,
   createNodeModalState,
   drawCreateLinkState,
   intentState,
   linkDetailModelState,
   modeState,
+  routerNodeMenuState,
 } from "state";
 import Toolbar from "./Toolbar";
 import LinkDetail from "./LinkDetail";
@@ -17,7 +19,8 @@ import { Vector2d } from "konva/lib/types";
 import RouterNode, { RouterNodeData } from "./RouterNode";
 import CreateLinkModal from "./CreateLinkModal";
 import CreateNodeModal from "./CreateNodeModal";
-
+import RouterNodeMenu from "./RouterNodeMenu";
+import CreateInterfaceModal from "./CreateInterfaceModal";
 type RouterNodeMap = Map<string, RouterNodeData>;
 type LinkNodeMap = Map<string, LinkNodeData>;
 
@@ -30,6 +33,9 @@ const Viewer: React.FC = () => {
   const [linkDetailModal, setLinkDetailModal] =
     useRecoilState(linkDetailModelState);
   const createNodeModal = useRecoilValue(createNodeModalState);
+  const createInterfaceModal = useRecoilValue(createInterfaceModalState);
+  const [routerNodeMenu, setRouterNodeMenu] =
+    useRecoilState(routerNodeMenuState);
   const [mousePos, setMousePos] = useState<Vector2d>({ x: 0, y: 0 });
   const [drawCreateLink, setDrawCreateLink] =
     useRecoilState(drawCreateLinkState);
@@ -106,7 +112,7 @@ const Viewer: React.FC = () => {
             }
           }}
           onMouseUp={(e) => {
-            resetDrawCreateLink;
+            resetDrawCreateLink();
             if (mode.currentMode === "CreateLink") {
               if (createLink.fromNode) {
                 setCreateLink({
@@ -115,6 +121,17 @@ const Viewer: React.FC = () => {
                 });
               }
             }
+          }}
+          onContextMenu={(e) => {
+            const stage = e.target.getStage();
+            if (!stage) return;
+            const pos = stage.getPointerPosition();
+            if (!pos) return;
+            setRouterNodeMenu({
+              isOpen: true,
+              node: routerNodeData.node,
+              pos: { x: pos.x - 30, y: pos.y + 30 },
+            });
           }}
           key={`RouterNode-${routerNodeData.node.id}`}
         />
@@ -169,6 +186,29 @@ const Viewer: React.FC = () => {
     }
   }, [drawCreateLink]);
 
+  const renderRouterNodeMenu = useMemo(() => {
+    if (
+      !routerNodeMenu.isOpen ||
+      routerNodeMenu.pos === null ||
+      routerNodeMenu.node === null
+    )
+      return null;
+    return (
+      <RouterNodeMenu node={routerNodeMenu.node} pos={routerNodeMenu.pos} />
+    );
+  }, [routerNodeMenu]);
+
+  const renderCreateInterfaceModal = useMemo(() => {
+    if (!createInterfaceModal.isOpen || createInterfaceModal.node === null)
+      return null;
+    return (
+      <CreateInterfaceModal
+        isOpen={createInterfaceModal.isOpen}
+        node={createInterfaceModal.node}
+      />
+    );
+  }, [createInterfaceModal]);
+
   useEffect(() => {
     console.log("useEffect trigger: intent");
     syncRouterNodeMapWithIntent(intent.nodes);
@@ -221,9 +261,11 @@ const Viewer: React.FC = () => {
           {renderDrawingCreateLink}
         </Layer>
       </Stage>
-      {renderCreateLinkModal}
-      <Toolbar />
       <CreateNodeModal isOpen={createNodeModal.isOpen} />
+      {renderCreateLinkModal}
+      {renderCreateInterfaceModal}
+      {renderRouterNodeMenu}
+      <Toolbar />
       {linkDetailModal.isOpen && linkDetailModal.pos && (
         <LinkDetail
           pos={linkDetailModal.pos}

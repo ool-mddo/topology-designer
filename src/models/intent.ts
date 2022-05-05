@@ -46,6 +46,10 @@ export class Intent {
     this._nodeMap.set(node.id, node);
   }
 
+  public updateNode(node: Node) {
+    this._nodeMap.set(node.id, node);
+  }
+
   public addLink(from: Interface, to: Interface) {
     const newLink = new Link(this, from, to);
     this._linkMap.set(newLink.id, newLink);
