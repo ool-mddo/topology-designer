@@ -74,7 +74,7 @@ const Viewer: React.FC = () => {
 
   const syncLinkNodeMapWithIntent = (links: LinkIntent[]) => {
     console.log("called syncLinkNodeMapWithIntent");
-    const newMap: Map<string, LinkNodeData> = new Map(linkNodeMap);
+    const newMap: Map<string, LinkNodeData> = new Map();
     links.map((link) => {
       const fromRouterNode = routerNodeMap.get(link.from.p.id);
       const toRouterNode = routerNodeMap.get(link.to.p.id);

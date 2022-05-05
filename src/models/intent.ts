@@ -50,6 +50,24 @@ export class Intent {
     this._nodeMap.set(node.id, node);
   }
 
+  public removeNodeByName(name: string) {
+    const targetNode = this._nodeMap.get(this.makeNodeId(name));
+    if (targetNode === undefined) return;
+    // remove links
+    targetNode.interfaces.map((i) => {
+      this.findLinksRelatedInterface(i).map((link) => {
+        this.removeLink(link.id);
+      });
+    });
+    this._nodeMap.delete(targetNode.id);
+  }
+
+  public findLinksRelatedInterface(i: Interface) {
+    return this.links.filter(
+      (link) => link.from.id === i.id || link.to.id === i.id
+    );
+  }
+
   public addLink(from: Interface, to: Interface) {
     const newLink = new Link(this, from, to);
     this._linkMap.set(newLink.id, newLink);
