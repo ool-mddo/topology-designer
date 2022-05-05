@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Layer, Line, Stage } from "react-konva";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Layer, Line, Stage, Text } from "react-konva";
 import { Intent, Node as NodeIntent, Link as LinkIntent } from "models/intent";
 import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil";
 import {
@@ -21,8 +21,15 @@ import CreateLinkModal from "./CreateLinkModal";
 import CreateNodeModal from "./CreateNodeModal";
 import RouterNodeMenu from "./RouterNodeMenu";
 import CreateInterfaceModal from "./CreateInterfaceModal";
+import { Box } from "@mui/system";
+import styled from "@emotion/styled";
 type RouterNodeMap = Map<string, RouterNodeData>;
 type LinkNodeMap = Map<string, LinkNodeData>;
+
+const Wrapper = styled(Box)({
+  width: "100%",
+  height: "100%",
+});
 
 const Viewer: React.FC = () => {
   const [intent, setIntent] = useRecoilState(intentState);
@@ -222,14 +229,18 @@ const Viewer: React.FC = () => {
   useEffect(() => {
     console.log("useEffect trigger: linkNodeMap");
   }, [linkNodeMap]);
-
+  const ref = useRef<HTMLDivElement>(null);
+  const canvasHeight = useMemo(() => {
+    return ref.current?.clientHeight;
+  }, [ref.current?.clientHeight]);
+  const canvasWidth = useMemo(() => {
+    return ref.current?.clientWidth;
+  }, [ref.current?.clientWidth]);
   return (
-    <>
-      <div>Debug: {`{x: ${mousePos.x}, y:${mousePos.y}}`}</div>
-      <pre>Pos: {JSON.stringify(createLink)}</pre>
+    <Wrapper ref={ref}>
       <Stage
-        width={window.innerWidth}
-        height={window.innerHeight}
+        width={canvasWidth}
+        height={canvasHeight}
         onMouseDown={(evt) => {
           setLinkDetailModal({
             isOpen: false,
@@ -256,6 +267,7 @@ const Viewer: React.FC = () => {
         }}
       >
         <Layer>
+          <Text text={`{x: ${mousePos.x}, y:${mousePos.y}}`} x={0} y={0} />
           {renderRouterNodes}
           {renderLinkNodes}
           {renderDrawingCreateLink}
@@ -288,7 +300,7 @@ const Viewer: React.FC = () => {
           }}
         />
       )}
-    </>
+    </Wrapper>
   );
 };
 
