@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
-import { Cable, NearMe, Router } from "@mui/icons-material";
-import { Icon, MenuItem, MenuList, Paper } from "@mui/material";
+import { Upload, Cable, Download, NearMe, Router } from "@mui/icons-material";
+import { Paper } from "@mui/material";
 import { Box } from "@mui/system";
 import Portal from "components/Portal";
 import React from "react";
@@ -27,7 +27,11 @@ const IconWrapper = styled(Box)({
   justifyItems: "center",
 });
 
-const Toolbar: React.FC = () => {
+type Props = {
+  onClickDownload: () => void;
+};
+
+const Toolbar: React.FC<Props> = ({ onClickDownload }) => {
   const setMode = useSetRecoilState(modeState);
   const setCreateNodeModal = useSetRecoilState(createNodeModalState);
   return (
@@ -59,6 +63,14 @@ const Toolbar: React.FC = () => {
           }}
         >
           <Router style={{ width: "30px", height: "30px", padding: "10px" }} />
+        </IconWrapper>
+        <IconWrapper onClick={onClickDownload}>
+          <Download
+            style={{ width: "30px", height: "30px", padding: "10px" }}
+          />
+        </IconWrapper>
+        <IconWrapper>
+          <Upload style={{ width: "30px", height: "30px", padding: "10px" }} />
         </IconWrapper>
       </Wrapper>
     </Portal>

@@ -289,6 +289,18 @@ const Viewer: React.FC = () => {
     resetDrawCreateLink();
   };
 
+  const onClickDownloadIntent = () => {
+    console.log("onClickDownloadIntent");
+    if (stageRef.current === null) return;
+    const fileData = stageRef.current.toJSON();
+    const blob = new Blob([fileData], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const aTag = document.createElement("a");
+    aTag.href = url;
+    aTag.download = "intent-" + intent.id + ".json";
+    aTag.click();
+  };
+
   return (
     <Wrapper ref={ref}>
       <Stage
@@ -311,7 +323,7 @@ const Viewer: React.FC = () => {
       {renderCreateInterfaceModal}
       {renderRouterNodeMenu}
       {renderLinkNodeMenu}
-      <Toolbar />
+      <Toolbar onClickDownload={onClickDownloadIntent} />
     </Wrapper>
   );
 };
