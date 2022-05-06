@@ -1,5 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Layer, Line, Stage, Text } from "react-konva";
+import { Stage as StageDOM } from "konva/lib/Stage";
+import { KonvaEventObject } from "konva/lib/Node";
+import { Vector2d } from "konva/lib/types";
+import { Box } from "@mui/system";
+import styled from "@emotion/styled";
 import { Intent, Node as NodeIntent, Link as LinkIntent } from "models/intent";
 import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil";
 import {
@@ -8,22 +13,19 @@ import {
   createNodeModalState,
   drawCreateLinkState,
   intentState,
-  linkDetailModelState,
+  linkNodeMenuState,
   modeState,
   routerNodeMenuState,
 } from "state";
 import Toolbar from "./Toolbar";
-import LinkDetail from "./LinkDetail";
 import LinkNode, { LinkNodeData } from "./LinkNode";
-import { Vector2d } from "konva/lib/types";
 import RouterNode, { RouterNodeData } from "./RouterNode";
+import RouterNodeMenu from "./RouterNodeMenu";
 import CreateLinkModal from "./CreateLinkModal";
 import CreateNodeModal from "./CreateNodeModal";
-import RouterNodeMenu from "./RouterNodeMenu";
 import CreateInterfaceModal from "./CreateInterfaceModal";
-import { Box } from "@mui/system";
-import styled from "@emotion/styled";
 import bgImg from "assets/images/bg.png";
+import LinkNodeMenu from "./LinkNodeMenu";
 type RouterNodeMap = Map<string, RouterNodeData>;
 type LinkNodeMap = Map<string, LinkNodeData>;
 
@@ -36,18 +38,20 @@ const Wrapper = styled(Box)({
 });
 
 const Viewer: React.FC = () => {
-  const [intent, setIntent] = useRecoilState(intentState);
-  const mode = useRecoilValue(modeState);
+  const ref = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<StageDOM>(null);
   const [routerNodeMap, setRouterNodeMap] = useState<RouterNodeMap>(new Map());
   const [linkNodeMap, setLinkNodeMap] = useState<LinkNodeMap>(new Map());
+  const [mousePos, setMousePos] = useState<Vector2d>({ x: 0, y: 0 });
+  const [intent, setIntent] = useRecoilState(intentState);
+  const mode = useRecoilValue(modeState);
   const [createLink, setCreateLink] = useRecoilState(createLinkState);
-  const [linkDetailModal, setLinkDetailModal] =
-    useRecoilState(linkDetailModelState);
+  const [linkNodeMenu, setLinkNodeMenu] = useRecoilState(linkNodeMenuState);
+  const resetLinkNodeMenu = useResetRecoilState(linkNodeMenuState);
   const createNodeModal = useRecoilValue(createNodeModalState);
   const createInterfaceModal = useRecoilValue(createInterfaceModalState);
   const [routerNodeMenu, setRouterNodeMenu] =
     useRecoilState(routerNodeMenuState);
-  const [mousePos, setMousePos] = useState<Vector2d>({ x: 0, y: 0 });
   const [drawCreateLink, setDrawCreateLink] =
     useRecoilState(drawCreateLinkState);
   const resetDrawCreateLink = useResetRecoilState(drawCreateLinkState);
@@ -155,6 +159,17 @@ const Viewer: React.FC = () => {
       return (
         <LinkNode
           data={linkNodeData}
+          onLineContextMenu={(evt) => {
+            const stage = evt.target.getStage();
+            if (!stage) return;
+            const pos = stage.getPointerPosition();
+            if (!pos) return;
+            setLinkNodeMenu({
+              isOpen: true,
+              link: linkNodeData.link,
+              pos: pos,
+            });
+          }}
           key={`LinkNode-${linkNodeData.link.id}`}
         />
       );
@@ -220,6 +235,30 @@ const Viewer: React.FC = () => {
     );
   }, [createInterfaceModal]);
 
+  const renderLinkNodeMenu = useMemo(() => {
+    if (linkNodeMenu.isOpen && linkNodeMenu.pos) {
+      return (
+        <LinkNodeMenu
+          pos={linkNodeMenu.pos}
+          onClickRemoveLink={() => {
+            const targetLink = linkNodeMenu.link;
+            if (targetLink) {
+              const newIntent = new Intent(
+                intent.id,
+                intent.nodes,
+                intent.links
+              );
+              newIntent.removeLink(targetLink.id);
+              setIntent(newIntent);
+              resetLinkNodeMenu();
+            }
+          }}
+        />
+      );
+    }
+    return null;
+  }, [linkNodeMenu]);
+
   useEffect(() => {
     console.log("useEffect trigger: intent");
     syncRouterNodeMapWithIntent(intent.nodes);
@@ -230,45 +269,35 @@ const Viewer: React.FC = () => {
     console.log("useEffect trigger: routerNodeMap");
     syncLinkNodeMapWithIntent(intent.links);
   }, [routerNodeMap]);
-  useEffect(() => {
-    console.log("useEffect trigger: linkNodeMap");
-  }, [linkNodeMap]);
-  const ref = useRef<HTMLDivElement>(null);
-  const canvasHeight = useMemo(() => {
-    return ref.current?.clientHeight;
-  }, [ref.current?.clientHeight]);
-  const canvasWidth = useMemo(() => {
-    return ref.current?.clientWidth;
-  }, [ref.current?.clientWidth]);
+
+  const onMouseDownHandler = (evt: KonvaEventObject<MouseEvent>) => {
+    resetLinkNodeMenu();
+  };
+  const onMouseMove = (evt: KonvaEventObject<MouseEvent>) => {
+    const stage = stageRef.current?.getStage();
+    if (stage === undefined) return;
+    const pointerPos = stage.getPointerPosition() ?? { x: 0, y: 0 };
+    setMousePos(pointerPos);
+    if (mode.currentMode === "CreateLink" && drawCreateLink.isDrawing) {
+      setDrawCreateLink({
+        ...drawCreateLink,
+        drawingPointerPos: pointerPos,
+      });
+    }
+  };
+  const onMouseUpHandler = (evt: KonvaEventObject<MouseEvent>) => {
+    resetDrawCreateLink();
+  };
+
   return (
     <Wrapper ref={ref}>
       <Stage
-        width={canvasWidth}
-        height={canvasHeight}
-        onMouseDown={(evt) => {
-          setLinkDetailModal({
-            isOpen: false,
-            targetLink: null,
-            pos: null,
-          });
-        }}
-        onMouseMove={(evt) => {
-          const stage = evt.target.getStage();
-          setMousePos(stage?.getPointerPosition() ?? { x: 0, y: 0 });
-          if (
-            mode.currentMode === "CreateLink" &&
-            drawCreateLink.isDrawing &&
-            stage
-          ) {
-            setDrawCreateLink({
-              ...drawCreateLink,
-              drawingPointerPos: stage.getPointerPosition(),
-            });
-          }
-        }}
-        onMouseup={() => {
-          resetDrawCreateLink();
-        }}
+        ref={stageRef}
+        width={ref.current?.clientWidth}
+        height={ref.current?.clientHeight}
+        onMouseDown={onMouseDownHandler}
+        onMouseup={onMouseUpHandler}
+        onMouseMove={onMouseMove}
       >
         <Layer>
           <Text text={`{x: ${mousePos.x}, y:${mousePos.y}}`} x={0} y={0} />
@@ -281,29 +310,8 @@ const Viewer: React.FC = () => {
       {renderCreateLinkModal}
       {renderCreateInterfaceModal}
       {renderRouterNodeMenu}
+      {renderLinkNodeMenu}
       <Toolbar />
-      {linkDetailModal.isOpen && linkDetailModal.pos && (
-        <LinkDetail
-          pos={linkDetailModal.pos}
-          onClickRemoveLink={() => {
-            const targetLink = linkDetailModal.targetLink;
-            if (targetLink) {
-              const newIntent = new Intent(
-                intent.id,
-                intent.nodes,
-                intent.links
-              );
-              newIntent.removeLink(targetLink.id);
-              setIntent(newIntent);
-              setLinkDetailModal({
-                isOpen: false,
-                targetLink: null,
-                pos: null,
-              });
-            }
-          }}
-        />
-      )}
     </Wrapper>
   );
 };

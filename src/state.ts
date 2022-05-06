@@ -8,11 +8,6 @@ type ModeState = {
   currentMode: Mode;
 };
 
-type ModalProps = {
-  isOpen: boolean;
-  pos: Vector2d | null;
-};
-
 type CreateLinkState = {
   fromNode: Node | null;
   toNode: Node | null;
@@ -53,17 +48,6 @@ export const intentState = atom<Intent>({
   default: new Intent("init"),
 });
 
-export const linkDetailModelState = atom<
-  ModalProps & { targetLink: Link | null }
->({
-  key: "LinkDetailModalState",
-  default: {
-    isOpen: false,
-    pos: null,
-    targetLink: null,
-  },
-});
-
 type CreateNodeModalState = {
   isOpen: boolean;
 };
@@ -84,6 +68,19 @@ export const routerNodeMenuState = atom<{
   default: {
     isOpen: false,
     node: null,
+    pos: null,
+  },
+});
+
+export const linkNodeMenuState = atom<{
+  isOpen: boolean;
+  link: Link | null;
+  pos: Vector2d | null;
+}>({
+  key: "LinkNodeMenuState",
+  default: {
+    isOpen: false,
+    link: null,
     pos: null,
   },
 });

@@ -2,6 +2,7 @@ import React, { FC, useMemo } from "react";
 import { Vector2d } from "konva/lib/types";
 import { Link } from "models/intent";
 import { Circle, Group, Label, Line, Tag, Text } from "react-konva";
+import { KonvaEventObject } from "konva/lib/Node";
 
 export type LinkNodeData = {
   link: Link;
@@ -11,9 +12,10 @@ export type LinkNodeData = {
 
 type Props = {
   data: LinkNodeData;
+  onLineContextMenu?: (evt: KonvaEventObject<PointerEvent>) => void;
 };
 
-const LinkNode: FC<Props> = ({ data }) => {
+const LinkNode: FC<Props> = ({ data, onLineContextMenu }) => {
   console.log("LinkNode Rendered");
   const { link, fromPos, toPos } = data;
   const tagHeight = 20;
@@ -124,6 +126,11 @@ const LinkNode: FC<Props> = ({ data }) => {
       offsetY * verticalHosei.y + (toPos.y - fromPos.y),
     ];
   }, [fromPos, toPos, verticalHosei]);
+  const onLineContextMenuHandler = (evt: KonvaEventObject<PointerEvent>) => {
+    console.log("onLineContextMenu");
+    evt.evt.preventDefault();
+    if (onLineContextMenu) onLineContextMenu(evt);
+  };
   return (
     <>
       <Circle x={basePos.x} y={basePos.y} radius={5} fill="red"></Circle>
@@ -188,7 +195,12 @@ const LinkNode: FC<Props> = ({ data }) => {
           height={tagHeight}
           verticalAlign="middle"
         />
-        <Line stroke="black" strokeWidth={5} points={points} />
+        <Line
+          stroke="black"
+          strokeWidth={5}
+          points={points}
+          onContextMenu={onLineContextMenuHandler}
+        />
         <Circle
           x={linkNamePos.x}
           y={linkNamePos.y}

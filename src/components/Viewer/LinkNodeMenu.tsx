@@ -1,23 +1,21 @@
-import styled from "@emotion/styled";
+import React, { MouseEvent } from "react";
 import { Box, MenuItem, MenuList, Paper } from "@mui/material";
 import Portal from "components/Portal";
 import { Vector2d } from "konva/lib/types";
-import React, { MouseEvent } from "react";
 
 type Props = {
   pos: Vector2d;
   onClickRemoveLink?: (e: MouseEvent<HTMLElement>) => void;
 };
 
-const LinkDetail: React.FC<Props> = ({ pos, onClickRemoveLink }) => {
-  console.log(`LinkDetail rendered. at<{${pos.x}, ${pos.y}}>`);
+const LinkNodeMenu: React.FC<Props> = ({ pos, onClickRemoveLink }) => {
   return (
     <Portal>
       <Box
         style={{
           position: "absolute",
-          top: pos.x,
-          left: pos.y,
+          top: pos.y,
+          left: pos.x,
           zIndex: 1000,
           cursor: "pointer",
         }}
@@ -32,4 +30,4 @@ const LinkDetail: React.FC<Props> = ({ pos, onClickRemoveLink }) => {
   );
 };
 
-export default LinkDetail;
+export default LinkNodeMenu;
