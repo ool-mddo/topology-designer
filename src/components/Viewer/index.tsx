@@ -23,12 +23,16 @@ import RouterNodeMenu from "./RouterNodeMenu";
 import CreateInterfaceModal from "./CreateInterfaceModal";
 import { Box } from "@mui/system";
 import styled from "@emotion/styled";
+import bgImg from "assets/images/bg.png";
 type RouterNodeMap = Map<string, RouterNodeData>;
 type LinkNodeMap = Map<string, LinkNodeData>;
 
 const Wrapper = styled(Box)({
   width: "100%",
   height: "100%",
+  backgroundImage: `url(${bgImg})`,
+  backgroundSize: "contain",
+  backgroundRepeat: "repeat",
 });
 
 const Viewer: React.FC = () => {
