@@ -9,16 +9,16 @@ import styled from "@emotion/styled";
 
 const makeTestIntent = (): Intent => {
   const intent = new Intent("testIntent");
-  const nodeA = new Node(intent, "nodeA");
-  const nodeB = new Node(intent, "nodeB");
+  const nodeA = intent.addNode("nodeA");
+  const nodeB = intent.addNode("nodeB");
   nodeA.addInterface("interface1");
   nodeA.addInterface("interface2");
   nodeA.addInterface("interface3");
   nodeB.addInterface("interface1");
   nodeB.addInterface("interface2");
   nodeB.addInterface("interface3");
-  intent.addNode(nodeA);
-  intent.addNode(nodeB);
+  intent.updateNode(nodeA);
+  intent.updateNode(nodeB);
   const nodeAIf = nodeA.findInterface("interface1");
   const nodeBIf = nodeB.findInterface("interface1");
   if (nodeAIf && nodeBIf) {

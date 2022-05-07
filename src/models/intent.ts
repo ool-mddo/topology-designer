@@ -42,8 +42,10 @@ export class Intent {
     return this._nodeMap.get(this.makeNodeId(name));
   }
 
-  public addNode(node: Node) {
+  public addNode(nodeName: string, interfaces: Interface[] = []): Node {
+    const node = new Node(this, nodeName, interfaces);
     this._nodeMap.set(node.id, node);
+    return node;
   }
 
   public updateNode(node: Node) {

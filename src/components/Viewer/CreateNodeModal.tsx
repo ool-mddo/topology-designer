@@ -32,8 +32,7 @@ const CreateNodeModal: FC<Props> = ({ isOpen }) => {
       return;
     }
     const newIntent = new Intent(intent.id, intent.nodes, intent.links);
-    const node = new NodeIntent(newIntent, formData.name);
-    newIntent.addNode(node);
+    newIntent.addNode(formData.name);
     setIntent(newIntent);
     setCreateNodeModal({ isOpen: false });
     return;
