@@ -1,5 +1,20 @@
+import AbstractProjectManager from "./abs";
+import { Project } from "models/project";
 import { Intent, Node as NodeIntent } from "models/intent";
-import AbstractIntentManager from "./abs";
+import CanvasData, { SerializedCanvasData } from "models/canvas";
+
+type ProjectA = {
+  intent: ProjectAIntent;
+  canvas: SerializedCanvasData;
+};
+
+type ProjectAIntent = {
+  Name: string;
+  Topology: {
+    Nodes: ProjectANode[];
+    Links: ProjectALink[];
+  };
+};
 
 type ProjectANode = {
   Hostname: string;
@@ -21,26 +36,18 @@ type ProjectALink = {
   InterfaceName: string;
 }[];
 
-type ProjectAIntent = {
-  Name: string;
-  Topology: {
-    Nodes: ProjectANode[];
-    Links: ProjectALink[];
-  };
-};
-
-export default class ProjectAIntentManager extends AbstractIntentManager {
-  public importFromJSON(json: string): Intent {
-    const jsonData: ProjectAIntent = JSON.parse(json);
-    const intent = new Intent(jsonData.Name);
-    jsonData.Topology.Nodes.map((node) => {
+export default class ProjectAManager extends AbstractProjectManager {
+  public importFromJSON(json: string): Project {
+    const jsonData: ProjectA = JSON.parse(json);
+    const intent = new Intent(jsonData.intent.Name);
+    jsonData.intent.Topology.Nodes.map((node) => {
       const nodeIntent = new NodeIntent(intent, node.Hostname);
       node.Interfaces.map((i) => {
         nodeIntent.addInterface(i.Name);
       });
       intent.updateNode(nodeIntent);
     });
-    jsonData.Topology.Links.map((link) => {
+    jsonData.intent.Topology.Links.map((link) => {
       if (link.length !== 2) {
         return;
       }
@@ -54,16 +61,24 @@ export default class ProjectAIntentManager extends AbstractIntentManager {
         intent.addLink(fromInterface, toInterface);
       }
     });
-    return intent;
+    return {
+      intent: intent,
+      canvas: new CanvasData(new Map(jsonData.canvas?.routerNodeMap)),
+    };
   }
 
-  public exportToJSON(intent: Intent): string {
-    const projectAIntent: ProjectAIntent = {
-      Name: intent.id,
-      Topology: {
-        Nodes: [],
-        Links: [],
+  public exportToJSON(project: Project): string {
+    const intent = project.intent;
+    const canvasData = project.canvas?.toJSON() ?? { routerNodeMap: [] };
+    const projectA: ProjectA = {
+      intent: {
+        Name: intent.id,
+        Topology: {
+          Nodes: [],
+          Links: [],
+        },
       },
+      canvas: canvasData,
     };
     intent.nodes.map((node) => {
       const interfaces: ProjectAInterface[] = [];
@@ -73,7 +88,7 @@ export default class ProjectAIntentManager extends AbstractIntentManager {
           IPv4: "10.0.0.1/30",
         });
       });
-      projectAIntent.Topology.Nodes.push({
+      projectA.intent.Topology.Nodes.push({
         Hostname: node.name,
         InstanceType: "XRv",
         ManagementAddr: "10.254.0.101",
@@ -84,7 +99,7 @@ export default class ProjectAIntentManager extends AbstractIntentManager {
       });
     });
     intent.links.map((link) => {
-      projectAIntent.Topology.Links.push([
+      projectA.intent.Topology.Links.push([
         {
           Hostname: link.from.p.name,
           InterfaceName: link.from.name,
@@ -95,6 +110,6 @@ export default class ProjectAIntentManager extends AbstractIntentManager {
         },
       ]);
     });
-    return JSON.stringify(projectAIntent);
+    return JSON.stringify(projectA);
   }
 }

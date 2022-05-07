@@ -38,6 +38,10 @@ export class Intent {
     v.map((link) => this.addLink(link.from, link.to));
   }
 
+  public findNodeById(id: string): Node | undefined {
+    return this._nodeMap.get(id);
+  }
+
   public findNodeByName(name: string): Node | undefined {
     return this._nodeMap.get(this.makeNodeId(name));
   }

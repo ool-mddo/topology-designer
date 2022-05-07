@@ -15,6 +15,7 @@ import {
   intentState,
   linkNodeMenuState,
   modeState,
+  routerNodeMapState,
   routerNodeMenuState,
 } from "state";
 import Toolbar from "./Toolbar";
@@ -26,8 +27,8 @@ import CreateNodeModal from "./CreateNodeModal";
 import CreateInterfaceModal from "./CreateInterfaceModal";
 import bgImg from "assets/images/bg.png";
 import LinkNodeMenu from "./LinkNodeMenu";
-import ProjectAIntentManager from "libs/intentManager/projectAIntentManager";
-type RouterNodeMap = Map<string, RouterNodeData>;
+import ProjectAManager from "libs/projectManager/projectAManager";
+import CanvasData from "models/canvas";
 type LinkNodeMap = Map<string, LinkNodeData>;
 
 const Wrapper = styled(Box)({
@@ -41,7 +42,8 @@ const Wrapper = styled(Box)({
 const Viewer: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
   const stageRef = useRef<StageDOM>(null);
-  const [routerNodeMap, setRouterNodeMap] = useState<RouterNodeMap>(new Map());
+  // const [routerNodeMap, setRouterNodeMap] = useState<RouterNodeMap>(new Map());
+  const [routerNodeMap, setRouterNodeMap] = useRecoilState(routerNodeMapState);
   const [linkNodeMap, setLinkNodeMap] = useState<LinkNodeMap>(new Map());
   const [mousePos, setMousePos] = useState<Vector2d>({ x: 0, y: 0 });
   const [intent, setIntent] = useRecoilState(intentState);
@@ -291,8 +293,19 @@ const Viewer: React.FC = () => {
   };
 
   const onClickDownloadIntent = () => {
-    const intentManager = new ProjectAIntentManager();
-    const fileData = intentManager.exportToJSON(intent);
+    const projectManager = new ProjectAManager();
+    const canvasData = new CanvasData();
+    Array.from(routerNodeMap.values()).map((routerNode) => {
+      canvasData.routerNodeMap.set(routerNode.node.id, {
+        nodeId: routerNode.node.id,
+        pos: routerNode.pos,
+        connPos: routerNode.connPos,
+      });
+    });
+    const fileData = projectManager.exportToJSON({
+      intent: intent,
+      canvas: canvasData,
+    });
     const blob = new Blob([fileData], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const aTag = document.createElement("a");
@@ -305,9 +318,24 @@ const Viewer: React.FC = () => {
     fileReader.onload = (e) => {
       if (e.target === null) return;
       if (typeof e.target.result === "string") {
-        const intentManager = new ProjectAIntentManager();
-        const intent = intentManager.importFromJSON(e.target.result);
-        setIntent(intent);
+        const projectManager = new ProjectAManager();
+        const project = projectManager.importFromJSON(e.target.result);
+        const newMap: Map<string, RouterNodeData> = new Map();
+        if (project.canvas) {
+          Array.from(project.canvas.routerNodeMap.values()).map(
+            (routerNode) => {
+              const target = project.intent.findNodeById(routerNode.nodeId);
+              if (target === undefined) return;
+              newMap.set(target.id, {
+                node: target,
+                pos: routerNode.pos,
+                connPos: routerNode.connPos,
+              });
+            }
+          );
+        }
+        setIntent(project.intent);
+        setRouterNodeMap(newMap);
       }
     };
     fileReader.readAsText(file);

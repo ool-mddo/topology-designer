@@ -1,3 +1,4 @@
+import { RouterNodeData } from "components/Viewer/RouterNode";
 import { Vector2d } from "konva/lib/types";
 import { Intent, Interface, Link, Node } from "models/intent";
 import { atom } from "recoil";
@@ -24,6 +25,13 @@ export const modeState = atom<ModeState>({
   default: {
     currentMode: "View",
   },
+});
+
+type RouterNodeMap = Map<string, RouterNodeData>;
+
+export const routerNodeMapState = atom<RouterNodeMap>({
+  key: "routerNodeMap",
+  default: new Map(),
 });
 
 export const drawCreateLinkState = atom<DrawState>({
