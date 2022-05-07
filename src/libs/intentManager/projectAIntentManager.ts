@@ -38,9 +38,10 @@ export default class ProjectAIntentManager extends AbstractIntentManager {
       node.Interfaces.map((i) => {
         nodeIntent.addInterface(i.Name);
       });
+      intent.updateNode(nodeIntent);
     });
     jsonData.Topology.Links.map((link) => {
-      if (link.length === 2) {
+      if (link.length !== 2) {
         return;
       }
       const fromInterface = intent
