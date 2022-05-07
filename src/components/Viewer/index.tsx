@@ -26,6 +26,7 @@ import CreateNodeModal from "./CreateNodeModal";
 import CreateInterfaceModal from "./CreateInterfaceModal";
 import bgImg from "assets/images/bg.png";
 import LinkNodeMenu from "./LinkNodeMenu";
+import ProjectAIntentManager from "libs/intentManager/projectAIntentManager";
 type RouterNodeMap = Map<string, RouterNodeData>;
 type LinkNodeMap = Map<string, LinkNodeData>;
 
@@ -291,8 +292,8 @@ const Viewer: React.FC = () => {
 
   const onClickDownloadIntent = () => {
     console.log("onClickDownloadIntent");
-    if (stageRef.current === null) return;
-    const fileData = stageRef.current.toJSON();
+    const intentManager = new ProjectAIntentManager();
+    const fileData = intentManager.exportToJSON(intent);
     const blob = new Blob([fileData], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const aTag = document.createElement("a");
