@@ -291,7 +291,6 @@ const Viewer: React.FC = () => {
   };
 
   const onClickDownloadIntent = () => {
-    console.log("onClickDownloadIntent");
     const intentManager = new ProjectAIntentManager();
     const fileData = intentManager.exportToJSON(intent);
     const blob = new Blob([fileData], { type: "application/json" });
@@ -300,6 +299,18 @@ const Viewer: React.FC = () => {
     aTag.href = url;
     aTag.download = "intent-" + intent.id + ".json";
     aTag.click();
+  };
+  const onClickUploadIntent = (file: File) => {
+    const fileReader = new FileReader();
+    fileReader.onload = (e) => {
+      if (e.target === null) return;
+      if (typeof e.target.result === "string") {
+        const intentManager = new ProjectAIntentManager();
+        const intent = intentManager.importFromJSON(e.target.result);
+        setIntent(intent);
+      }
+    };
+    fileReader.readAsText(file);
   };
 
   return (
@@ -324,7 +335,10 @@ const Viewer: React.FC = () => {
       {renderCreateInterfaceModal}
       {renderRouterNodeMenu}
       {renderLinkNodeMenu}
-      <Toolbar onClickDownload={onClickDownloadIntent} />
+      <Toolbar
+        onClickDownload={onClickDownloadIntent}
+        onClickUpload={onClickUploadIntent}
+      />
     </Wrapper>
   );
 };
