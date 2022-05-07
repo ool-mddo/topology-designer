@@ -1,11 +1,12 @@
 import styled from "@emotion/styled";
-import { Upload, Cable, Download, NearMe, Router } from "@mui/icons-material";
+import { Upload, Cable, Download, NearMe } from "@mui/icons-material";
 import { Paper } from "@mui/material";
 import { Box } from "@mui/system";
 import Portal from "components/Portal";
 import React from "react";
 import { useSetRecoilState } from "recoil";
 import { createNodeModalState, modeState } from "state";
+import RouterImg from "assets/images/router.png";
 
 const Wrapper = styled(Paper)({
   position: "absolute",
@@ -62,7 +63,10 @@ const Toolbar: React.FC<Props> = ({ onClickDownload }) => {
             setCreateNodeModal({ isOpen: true });
           }}
         >
-          <Router style={{ width: "30px", height: "30px", padding: "10px" }} />
+          <img
+            src={RouterImg}
+            style={{ width: "30px", height: "30px", padding: "10px" }}
+          />
         </IconWrapper>
         <IconWrapper onClick={onClickDownload}>
           <Download
