@@ -1,11 +1,11 @@
-import React, { ReactElement, useEffect, useState } from "react";
-import Viewer from "components/Viewer";
+import React, { ReactElement, useEffect } from "react";
 import { Intent, Node } from "models/intent";
 import { useSetRecoilState } from "recoil";
 import { intentState } from "state";
 import { Box } from "@mui/system";
 import { AppBar, Toolbar, Typography } from "@mui/material";
 import styled from "@emotion/styled";
+import DraftingBoard from "components/DraftingBoard";
 
 const makeTestIntent = (): Intent => {
   const intent = new Intent("testIntent");
@@ -42,12 +42,12 @@ const App = (): ReactElement => {
       <AppBar position="static" style={{ height: "50px" }}>
         <Toolbar variant="dense">
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Network Drawering Tool
+            Network Drawer
           </Typography>
         </Toolbar>
       </AppBar>
       <ViewerWrapper>
-        <Viewer />
+        <DraftingBoard />
       </ViewerWrapper>
     </Box>
   );

@@ -39,7 +39,7 @@ const Wrapper = styled(Box)({
   backgroundRepeat: "repeat",
 });
 
-const Viewer: React.FC = () => {
+const DraftingBoard: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
   const stageRef = useRef<StageDOM>(null);
   // const [routerNodeMap, setRouterNodeMap] = useState<RouterNodeMap>(new Map());
@@ -371,4 +371,4 @@ const Viewer: React.FC = () => {
   );
 };
 
-export default Viewer;
+export default DraftingBoard;
