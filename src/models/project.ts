@@ -1,5 +1,5 @@
 import CanvasData from "./canvas";
-import { Intent } from "./intent";
+import Intent from "./intent";
 
 export type Project = {
   intent: Intent;

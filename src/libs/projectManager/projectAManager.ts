@@ -1,6 +1,6 @@
 import AbstractProjectManager from "./abs";
 import { Project } from "models/project";
-import { Intent, Node as NodeIntent } from "models/intent";
+import Intent, { Node as NodeIntent } from "models/intent";
 import CanvasData, { SerializedCanvasData } from "models/canvas";
 
 type ProjectA = {

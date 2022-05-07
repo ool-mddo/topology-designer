@@ -7,8 +7,8 @@ import {
   MenuItem,
   Select,
 } from "@mui/material";
-import { Intent, Node as NodeIntent } from "models/intent";
-import React, { FC, MouseEvent, MouseEventHandler, useState } from "react";
+import Intent, { Node as NodeIntent } from "models/intent";
+import React, { FC, MouseEvent, useState } from "react";
 import { useRecoilState, useResetRecoilState } from "recoil";
 import { createLinkState, intentState } from "state";
 

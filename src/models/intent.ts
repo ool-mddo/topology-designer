@@ -1,4 +1,10 @@
-export class Intent {
+type NodeType = "XRv" | "vMX" | "UnKnown";
+
+type Loopback = {
+  IPv4: string | undefined;
+};
+
+export default class Intent {
   private _id: string | undefined = undefined;
   private _nodeMap: Map<string, Node> = new Map();
   private _linkMap: Map<string, Link> = new Map();
@@ -25,8 +31,15 @@ export class Intent {
 
   public set nodes(v: Node[]) {
     v.map((node) => {
-      const tmpNode = new Node(this, node.name, node.interfaces);
-      this._nodeMap.set(this.makeNodeId(tmpNode.name), tmpNode);
+      const cloneNode = new Node(
+        this,
+        node.name,
+        node.type,
+        node.mgmtAddr,
+        node.loopback,
+        node.interfaces
+      );
+      this._nodeMap.set(this.makeNodeId(cloneNode.name), cloneNode);
     });
   }
 
@@ -46,8 +59,14 @@ export class Intent {
     return this._nodeMap.get(this.makeNodeId(name));
   }
 
-  public addNode(nodeName: string, interfaces: Interface[] = []): Node {
-    const node = new Node(this, nodeName, interfaces);
+  public addNode(
+    nodeName: string,
+    type: NodeType = "UnKnown",
+    mgmtAddr: string | undefined = undefined,
+    loopback: Loopback = { IPv4: undefined },
+    interfaces: Interface[] = []
+  ): Node {
+    const node = new Node(this, nodeName, type, mgmtAddr, loopback, interfaces);
     this._nodeMap.set(node.id, node);
     return node;
   }
@@ -86,15 +105,35 @@ export class Intent {
   private makeNodeId(nodeName: string) {
     return `node-${this.id}-${nodeName}`;
   }
+
+  public toJSON() {
+    return {
+      nodes: this.nodes,
+      links: this.links,
+    };
+  }
 }
 
 export class Node {
   private _p: Intent | undefined = undefined;
   private _name: string | undefined = undefined;
+  private _type: NodeType | undefined = undefined;
+  private _mgmtAddr: string | undefined = undefined;
+  private _loopback: Loopback | undefined = undefined;
   private _interfaceMap: Map<string, Interface> = new Map();
-  constructor(p: Intent, name: string, interfaces: Interface[] = []) {
+  constructor(
+    p: Intent,
+    name: string,
+    type: NodeType = "UnKnown",
+    mgmtAddr: string | undefined = undefined,
+    loopback: Loopback = { IPv4: undefined },
+    interfaces: Interface[] = []
+  ) {
     this.p = p;
     this.name = name;
+    this.type = type;
+    this.mgmtAddr = mgmtAddr;
+    this.loopback = loopback;
     this.interfaces = interfaces;
   }
 
@@ -124,6 +163,36 @@ export class Node {
     this._name = name;
   }
 
+  public get type(): NodeType {
+    if (this._type === undefined) {
+      throw new Error("type is undefined");
+    }
+    return this._type;
+  }
+
+  public set type(type: NodeType) {
+    this._type = type;
+  }
+
+  public get mgmtAddr(): string | undefined {
+    return this._mgmtAddr;
+  }
+
+  public set mgmtAddr(mgmtAddr: string | undefined) {
+    this._mgmtAddr = mgmtAddr;
+  }
+
+  public get loopback(): Loopback {
+    if (this._loopback === undefined) {
+      throw new Error("loopback is undefined");
+    }
+    return this._loopback;
+  }
+
+  public set loopback(loopback: Loopback) {
+    this._loopback = loopback;
+  }
+
   public set interfaces(v: Interface[]) {
     v.map((i) => {
       this.addInterface(i.name);
@@ -145,14 +214,26 @@ export class Node {
   public findInterface(ifName: string): Interface | undefined {
     return this._interfaceMap.get(ifName);
   }
+
+  public toJSON() {
+    return {
+      name: this.name,
+      type: this.type,
+      mgmtAddr: this.mgmtAddr,
+      loopback: this.loopback,
+      interfaces: this.interfaces,
+    };
+  }
 }
 
 export class Interface {
   private _p: Node | undefined = undefined;
   private _name: string | undefined = undefined;
-  constructor(p: Node, name: string) {
+  private _ipv4Addr: string | undefined = undefined;
+  constructor(p: Node, name: string, ipv4Addr = undefined) {
     this.p = p;
     this.name = name;
+    this.ipv4Addr = ipv4Addr;
   }
 
   public get id(): string {
@@ -181,6 +262,14 @@ export class Interface {
     this._name = name;
   }
 
+  public get ipv4Addr(): string | undefined {
+    return this._ipv4Addr;
+  }
+
+  public set ipv4Addr(ipv4Addr: string | undefined) {
+    this._ipv4Addr = ipv4Addr;
+  }
+
   public dst(): Interface | undefined {
     console.log(this.p.p.links);
     const filtered = this.p.p.links.find(
@@ -194,6 +283,13 @@ export class Interface {
     } else {
       throw new Error("Unexpected error");
     }
+  }
+
+  public toJSON() {
+    return {
+      name: this.name,
+      ipv4Addr: this.ipv4Addr,
+    };
   }
 }
 
@@ -251,5 +347,12 @@ export class Link {
 
   public set to(v: Interface) {
     this._to = v;
+  }
+
+  public toJSON() {
+    return {
+      from: this.from,
+      to: this.to,
+    };
   }
 }

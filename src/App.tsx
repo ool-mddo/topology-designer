@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect } from "react";
-import { Intent, Node } from "models/intent";
+import Intent from "models/intent";
 import { useSetRecoilState } from "recoil";
 import { intentState } from "state";
 import { Box } from "@mui/system";

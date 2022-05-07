@@ -1,12 +1,5 @@
-import {
-  Button,
-  Dialog,
-  DialogTitle,
-  FormControl,
-  InputLabel,
-  TextField,
-} from "@mui/material";
-import { Intent, Node as NodeIntent } from "models/intent";
+import { Button, Dialog, DialogTitle, TextField } from "@mui/material";
+import Intent from "models/intent";
 import React, { FC, MouseEvent, useState } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { createNodeModalState, intentState } from "state";

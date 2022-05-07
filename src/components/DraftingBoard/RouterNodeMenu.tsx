@@ -8,7 +8,7 @@ import {
   routerNodeMenuState,
 } from "state";
 import { Box, MenuItem, MenuList, Paper, Typography } from "@mui/material";
-import { Intent, Node as NodeIntent } from "models/intent";
+import Intent, { Node as NodeIntent } from "models/intent";
 
 const Wrapper = styled(Box)<{ pos: Vector2d }>(({ pos }) => ({
   position: "absolute",

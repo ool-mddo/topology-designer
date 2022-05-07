@@ -1,6 +1,6 @@
 import { RouterNodeData } from "components/DraftingBoard/RouterNode";
 import { Vector2d } from "konva/lib/types";
-import { Intent, Link, Node } from "models/intent";
+import Intent, { Link, Node } from "models/intent";
 import { atom } from "recoil";
 
 export type Mode = "View" | "CreateLink";

@@ -5,7 +5,7 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { Vector2d } from "konva/lib/types";
 import { Box } from "@mui/system";
 import styled from "@emotion/styled";
-import { Intent, Node as NodeIntent, Link as LinkIntent } from "models/intent";
+import Intent, { Node as NodeIntent, Link as LinkIntent } from "models/intent";
 import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil";
 import {
   createInterfaceModalState,
