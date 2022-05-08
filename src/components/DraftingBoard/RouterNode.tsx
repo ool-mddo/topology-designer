@@ -78,6 +78,8 @@ const RouterNode: FC<Props> = ({
         align="center"
         height={nodeNameHeight}
         verticalAlign="middle"
+        fontSize={15}
+        fontStyle="bold"
       />
       <Image
         image={routerIcon}
