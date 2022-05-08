@@ -16,6 +16,7 @@ import {
   intentState,
   linkNodeMenuState,
   modeState,
+  newIntentDialogState,
   routerNodeMapState,
   routerNodeMenuState,
 } from "state";
@@ -31,6 +32,7 @@ import LinkNodeMenu from "./LinkNodeMenu";
 import CanvasData from "models/canvas";
 import ContextMenu from "./ContextMenu";
 import BasicProjectManager from "libs/projectManager/basicProjectManager";
+import NewIntentDialog from "./NewIntentDialog";
 type LinkNodeMap = Map<string, LinkNodeData>;
 
 const Wrapper = styled(Box)({
@@ -64,6 +66,9 @@ const DraftingBoard: React.FC = () => {
   const [drawCreateLink, setDrawCreateLink] =
     useRecoilState(drawCreateLinkState);
   const resetDrawCreateLink = useResetRecoilState(drawCreateLinkState);
+  const [newIntentDialog, setNewIntentDialog] =
+    useRecoilState(newIntentDialogState);
+  const resetNewIntentDialog = useResetRecoilState(newIntentDialogState);
 
   const updateRouterNodePos = (nodeId: string, pos: Vector2d) => {
     const targetNode = routerNodeMap.get(nodeId);
@@ -344,8 +349,7 @@ const DraftingBoard: React.FC = () => {
   };
 
   const onClickNewIntent = () => {
-    resetIntent();
-    resetRouterNodeMap();
+    setNewIntentDialog({ isOpen: true });
   };
 
   const renderContextMenu = useMemo(() => {
@@ -374,6 +378,22 @@ const DraftingBoard: React.FC = () => {
     document.body.addEventListener("click", () => resetContextMenu(), false);
   };
 
+  const renderNewIntentDialog = useMemo(() => {
+    return (
+      <NewIntentDialog
+        isOpen={newIntentDialog.isOpen}
+        onCreateNewIntent={() => {
+          resetIntent();
+          resetRouterNodeMap();
+          resetNewIntentDialog();
+        }}
+        onCancel={() => {
+          resetNewIntentDialog();
+        }}
+      />
+    );
+  }, [newIntentDialog]);
+
   return (
     <Wrapper ref={ref}>
       <Stage
@@ -398,6 +418,7 @@ const DraftingBoard: React.FC = () => {
       {renderRouterNodeMenu}
       {renderLinkNodeMenu}
       {renderContextMenu}
+      {renderNewIntentDialog}
       <Toolbar />
     </Wrapper>
   );

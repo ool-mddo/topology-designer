@@ -113,3 +113,10 @@ export const contextMenuState = atom<{ isOpen: boolean; pos: Vector2d | null }>(
     },
   }
 );
+
+export const newIntentDialogState = atom<{ isOpen: boolean }>({
+  key: "NewIntentDialogState",
+  default: {
+    isOpen: false,
+  },
+});
