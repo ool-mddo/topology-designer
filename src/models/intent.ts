@@ -1,4 +1,4 @@
-type NodeType = "XRv" | "vMX" | "UnKnown";
+export type NodeType = "XRv" | "vMX" | "UnKnown";
 
 type Loopback = {
   IPv4: string | undefined;
