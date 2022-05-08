@@ -348,7 +348,13 @@ const DraftingBoard: React.FC = () => {
   const renderContextMenu = useMemo(() => {
     console.log("[call] renderContextMenu");
     if (contextMenu.isOpen && contextMenu.pos) {
-      return <ContextMenu pos={contextMenu.pos} />;
+      return (
+        <ContextMenu
+          pos={contextMenu.pos}
+          onClickExportIntentMenu={onClickDownloadIntent}
+          onClickImportIntentMenu={onClickUploadIntent}
+        />
+      );
     } else {
       return null;
     }
@@ -389,10 +395,7 @@ const DraftingBoard: React.FC = () => {
       {renderRouterNodeMenu}
       {renderLinkNodeMenu}
       {renderContextMenu}
-      <Toolbar
-        onClickDownload={onClickDownloadIntent}
-        onClickUpload={onClickUploadIntent}
-      />
+      <Toolbar />
     </Wrapper>
   );
 };
