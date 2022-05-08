@@ -44,7 +44,7 @@ export default class BasicProjectManager extends AbstractProjectManager {
       const nodeIntent = new NodeIntent(
         intent,
         node.Hostname,
-        node.InstanceType ?? "UnKnown",
+        node.InstanceType ?? "Unknown",
         node.ManagementAddr ?? undefined,
         {
           IPv4: node.Loopback.IPv4 ?? undefined,

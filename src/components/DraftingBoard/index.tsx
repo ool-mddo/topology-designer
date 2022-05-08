@@ -13,6 +13,7 @@ import {
   createLinkState,
   createNodeModalState,
   drawCreateLinkState,
+  editNodeModalState,
   intentState,
   linkNodeMenuState,
   modeState,
@@ -33,6 +34,7 @@ import CanvasData from "models/canvas";
 import ContextMenu from "./ContextMenu";
 import BasicProjectManager from "libs/projectManager/basicProjectManager";
 import NewIntentDialog from "./NewIntentDialog";
+import EditNodeModal from "components/modals/EditNodeModal";
 type LinkNodeMap = Map<string, LinkNodeData>;
 
 const Wrapper = styled(Box)({
@@ -70,6 +72,7 @@ const DraftingBoard: React.FC = () => {
   const [newIntentDialog, setNewIntentDialog] =
     useRecoilState(newIntentDialogState);
   const resetNewIntentDialog = useResetRecoilState(newIntentDialogState);
+  const editNodeModal = useRecoilValue(editNodeModalState);
 
   const updateRouterNodePos = (nodeId: string, pos: Vector2d) => {
     const targetNode = routerNodeMap.get(nodeId);
@@ -400,6 +403,13 @@ const DraftingBoard: React.FC = () => {
     );
   }, [newIntentDialog]);
 
+  const renderEditNodeModal = useMemo(() => {
+    if (editNodeModal.node === null) return;
+    return (
+      <EditNodeModal isOpen={editNodeModal.isOpen} node={editNodeModal.node} />
+    );
+  }, [editNodeModal]);
+
   return (
     <Wrapper ref={ref}>
       <Stage
@@ -419,6 +429,7 @@ const DraftingBoard: React.FC = () => {
         </Layer>
       </Stage>
       <CreateNodeModal isOpen={createNodeModal.isOpen} />
+      {renderEditNodeModal}
       {renderCreateLinkModal}
       {renderCreateInterfaceModal}
       {renderRouterNodeMenu}

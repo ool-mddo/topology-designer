@@ -3,6 +3,7 @@ import { Vector2d } from "konva/lib/types";
 import { useRecoilState, useResetRecoilState, useSetRecoilState } from "recoil";
 import {
   createInterfaceModalState,
+  editNodeModalState,
   intentState,
   routerNodeMenuState,
 } from "state";
@@ -17,6 +18,7 @@ type Props = {
 
 const RouterNodeMenu: FC<Props> = ({ node, pos }) => {
   const setCreateInterfaceModal = useSetRecoilState(createInterfaceModalState);
+  const setEditNodeModal = useSetRecoilState(editNodeModalState);
   const resetMenu = useResetRecoilState(routerNodeMenuState);
   const [isOpenDeleteNodeDialog, setIsOpenDeleteNodeDialog] = useState(false);
   const [intent, setIntent] = useRecoilState(intentState);
@@ -46,6 +48,11 @@ const RouterNodeMenu: FC<Props> = ({ node, pos }) => {
     <Box component={"div"} onMouseLeave={() => resetMenu()}>
       <Paper sx={{ width: 320, position: "absolute", left: pos.x, top: pos.y }}>
         <MenuList dense>
+          <MenuItem
+            onClick={() => setEditNodeModal({ isOpen: true, node: node })}
+          >
+            Edit Node
+          </MenuItem>
           <MenuItem
             onClick={() =>
               setCreateInterfaceModal({ isOpen: true, node: node })

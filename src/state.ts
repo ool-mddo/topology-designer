@@ -67,6 +67,17 @@ export const createNodeModalState = atom<CreateNodeModalState>({
   },
 });
 
+export const editNodeModalState = atom<{
+  isOpen: boolean;
+  node: Node | null;
+}>({
+  key: "EditNodeModalState",
+  default: {
+    isOpen: false,
+    node: null,
+  },
+});
+
 export const routerNodeMenuState = atom<{
   isOpen: boolean;
   node: Node | null;

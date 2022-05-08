@@ -1,4 +1,4 @@
-export type NodeType = "XRv" | "vMX" | "UnKnown";
+export type NodeType = "XRv" | "vMX" | "Unknown";
 
 type Loopback = {
   IPv4: string | undefined;
@@ -61,7 +61,7 @@ export default class Intent {
 
   public addNode(
     nodeName: string,
-    type: NodeType = "UnKnown",
+    type: NodeType = "Unknown",
     mgmtAddr: string | undefined = undefined,
     loopback: Loopback = { IPv4: undefined },
     interfaces: Interface[] = []
@@ -124,7 +124,7 @@ export class Node {
   constructor(
     p: Intent,
     name: string,
-    type: NodeType = "UnKnown",
+    type: NodeType = "Unknown",
     mgmtAddr: string | undefined = undefined,
     loopback: Loopback = { IPv4: undefined },
     interfaces: Interface[] = []
