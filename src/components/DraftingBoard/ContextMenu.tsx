@@ -10,16 +10,18 @@ import { Vector2d } from "konva/lib/types";
 import { useSetRecoilState } from "recoil";
 import { createNodeModalState } from "state";
 import RouterImg from "assets/images/router.png";
-import { Download, Upload } from "@mui/icons-material";
+import { Article, Download, Upload } from "@mui/icons-material";
 
 type Props = {
   pos: Vector2d;
+  onClickNewIntentMenu: () => void;
   onClickImportIntentMenu: (importFile: File) => void;
   onClickExportIntentMenu: () => void;
 };
 
 const ContextMenu: FC<Props> = ({
   pos,
+  onClickNewIntentMenu,
   onClickImportIntentMenu,
   onClickExportIntentMenu,
 }) => {
@@ -28,6 +30,16 @@ const ContextMenu: FC<Props> = ({
   return (
     <Paper sx={{ width: 320, position: "absolute", left: pos.x, top: pos.y }}>
       <MenuList dense>
+        <MenuItem
+          onClick={() => {
+            onClickNewIntentMenu();
+          }}
+        >
+          <ListItemIcon>
+            <Article fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>New Intent</ListItemText>
+        </MenuItem>
         <MenuItem
           onClick={() => {
             setCreateNodeModalState({ isOpen: true });

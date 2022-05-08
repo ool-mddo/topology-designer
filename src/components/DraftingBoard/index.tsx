@@ -48,9 +48,11 @@ const DraftingBoard: React.FC = () => {
   const resetContextMenu = useResetRecoilState(contextMenuState);
   // const [routerNodeMap, setRouterNodeMap] = useState<RouterNodeMap>(new Map());
   const [routerNodeMap, setRouterNodeMap] = useRecoilState(routerNodeMapState);
+  const resetRouterNodeMap = useResetRecoilState(routerNodeMapState);
   const [linkNodeMap, setLinkNodeMap] = useState<LinkNodeMap>(new Map());
   const [mousePos, setMousePos] = useState<Vector2d>({ x: 0, y: 0 });
   const [intent, setIntent] = useRecoilState(intentState);
+  const resetIntent = useResetRecoilState(intentState);
   const mode = useRecoilValue(modeState);
   const [createLink, setCreateLink] = useRecoilState(createLinkState);
   const [linkNodeMenu, setLinkNodeMenu] = useRecoilState(linkNodeMenuState);
@@ -345,12 +347,18 @@ const DraftingBoard: React.FC = () => {
     fileReader.readAsText(file);
   };
 
+  const onClickNewIntent = () => {
+    resetIntent();
+    resetRouterNodeMap();
+  };
+
   const renderContextMenu = useMemo(() => {
     console.log("[call] renderContextMenu");
     if (contextMenu.isOpen && contextMenu.pos) {
       return (
         <ContextMenu
           pos={contextMenu.pos}
+          onClickNewIntentMenu={onClickNewIntent}
           onClickExportIntentMenu={onClickDownloadIntent}
           onClickImportIntentMenu={onClickUploadIntent}
         />
