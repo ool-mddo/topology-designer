@@ -11,10 +11,10 @@ const makeTestIntent = (): Intent => {
   const intent = new Intent("testIntent");
   const nodeA = intent.addNode("nodeA");
   const nodeB = intent.addNode("nodeB");
-  nodeA.addInterface("interface1");
+  nodeA.addInterface("interface1", "10.100.0.1/30");
   nodeA.addInterface("interface2");
   nodeA.addInterface("interface3");
-  nodeB.addInterface("interface1");
+  nodeB.addInterface("interface1", "10.100.0.2/30");
   nodeB.addInterface("interface2");
   nodeB.addInterface("interface3");
   intent.updateNode(nodeA);

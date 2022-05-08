@@ -19,11 +19,22 @@ const LinkNode: FC<Props> = ({ data, onLineContextMenu }) => {
   const { link, fromPos, toPos } = data;
   const tagHeight = 20;
   const tagWidth = 100;
-  const offsetX = 0;
-  const offsetY = 40;
-  const address = "10.0.10.0/24";
-  const fromIFAddress = ".1";
-  const toIFAddress = ".2";
+  const offsetY = 35;
+  const nodeIconR = 25;
+  const linkAddress: string = useMemo(() => {
+    const fromIpv4Addr = data.link.from.ipv4Addr;
+    const toIpv4Addr = data.link.to.ipv4Addr;
+    if (fromIpv4Addr && toIpv4Addr) {
+      return fromIpv4Addr;
+    }
+    return "";
+  }, [data.link.from.ipv4Addr, data.link.to.ipv4Addr]);
+  const fromIFAddress = useMemo(() => {
+    return link.from.ipv4Addr ?? "";
+  }, [link.from.ipv4Addr]);
+  const toIFAddress = useMemo(() => {
+    return link.to.ipv4Addr ?? "";
+  }, [link.to.ipv4Addr]);
   const rotation = useMemo(() => {
     return Math.atan((toPos.y - fromPos.y) / (toPos.x - fromPos.x));
   }, [fromPos, toPos]);
@@ -47,25 +58,84 @@ const LinkNode: FC<Props> = ({ data, onLineContextMenu }) => {
     }
   }, [rotation]);
   const basePos: Vector2d = useMemo(() => {
-    return {
-      x: fromPos.x - offsetY * verticalHosei.x,
-      y: fromPos.y - offsetY * verticalHosei.y,
-    };
+    if (isFromBase) {
+      return {
+        x: fromPos.x - offsetY * verticalHosei.x,
+        y: fromPos.y - offsetY * verticalHosei.y,
+      };
+    } else {
+      return {
+        x: fromPos.x - offsetY * verticalHosei.x,
+        y: fromPos.y - offsetY * verticalHosei.y,
+      };
+    }
   }, [fromPos, verticalHosei]);
 
   const fromIFNamePos: Vector2d = useMemo(() => {
     if (isFromBase) {
       return {
-        x: 25 * horizontalHosei.x,
-        y: 25 * horizontalHosei.y,
+        x: nodeIconR * horizontalHosei.x,
+        y: nodeIconR * horizontalHosei.y,
       };
     } else {
       return {
-        x: -25 * horizontalHosei.x - tagWidth * horizontalHosei.x,
-        y: 25 * horizontalHosei.y,
+        x: -1 * (tagWidth + nodeIconR) * horizontalHosei.x,
+        y: -1 * (tagWidth + nodeIconR) * horizontalHosei.y,
       };
     }
   }, [horizontalHosei, isFromBase]);
+
+  const fromIFAddressPos: Vector2d = useMemo(() => {
+    if (isFromBase) {
+      return {
+        x:
+          nodeIconR * horizontalHosei.x +
+          (2 * offsetY - tagHeight) * verticalHosei.x,
+        y:
+          nodeIconR * horizontalHosei.y +
+          (2 * offsetY - tagHeight) * verticalHosei.y,
+      };
+    } else {
+      return {
+        x:
+          -1 * (tagWidth + nodeIconR) * horizontalHosei.x +
+          (2 * offsetY - tagHeight) * verticalHosei.x,
+        y:
+          -1 * (tagWidth + nodeIconR) * horizontalHosei.y +
+          (2 * offsetY - tagHeight) * verticalHosei.y,
+      };
+    }
+  }, [fromPos, verticalHosei, horizontalHosei]);
+
+  const toIFAddressPos: Vector2d = useMemo(() => {
+    if (isFromBase) {
+      return {
+        x:
+          toPos.x -
+          fromPos.x -
+          (nodeIconR + tagWidth) * horizontalHosei.x +
+          (2 * offsetY - tagHeight) * verticalHosei.x,
+        y:
+          toPos.y -
+          fromPos.y -
+          (nodeIconR + tagWidth) * horizontalHosei.y +
+          (2 * offsetY - tagHeight) * verticalHosei.y,
+      };
+    } else {
+      return {
+        x:
+          toPos.x -
+          fromPos.x +
+          nodeIconR * horizontalHosei.x +
+          (2 * offsetY - tagHeight) * verticalHosei.x,
+        y:
+          toPos.y -
+          fromPos.y +
+          nodeIconR * horizontalHosei.y +
+          (2 * offsetY - tagHeight) * verticalHosei.y,
+      };
+    }
+  }, [fromPos, verticalHosei, horizontalHosei]);
 
   const toIFNamePos: Vector2d = useMemo(() => {
     if (isFromBase) {
@@ -74,35 +144,20 @@ const LinkNode: FC<Props> = ({ data, onLineContextMenu }) => {
           toPos.x -
           fromPos.x -
           tagWidth * horizontalHosei.x -
-          25 * horizontalHosei.x,
+          nodeIconR * horizontalHosei.x,
         y:
           toPos.y -
           fromPos.y -
           tagWidth * horizontalHosei.y -
-          25 * horizontalHosei.y,
+          nodeIconR * horizontalHosei.y,
       };
     } else {
       return {
-        x:
-          toPos.x -
-          fromPos.x -
-          tagWidth * horizontalHosei.x +
-          25 * horizontalHosei.x +
-          tagWidth * horizontalHosei.x,
-        y:
-          toPos.y -
-          fromPos.y -
-          tagWidth * horizontalHosei.y -
-          25 * horizontalHosei.y,
+        x: toPos.x - fromPos.x + nodeIconR * horizontalHosei.x,
+        y: toPos.y - fromPos.y + nodeIconR * horizontalHosei.y,
       };
     }
   }, [fromPos, toPos, horizontalHosei, isFromBase]);
-  const linkNamePos: Vector2d = useMemo(() => {
-    return {
-      x: (toPos.x - fromPos.x) / 2 - (tagWidth / 2) * horizontalHosei.x,
-      y: (toPos.y - fromPos.y) / 2 - (tagWidth / 2) * horizontalHosei.y,
-    };
-  }, [fromPos, toPos, horizontalHosei]);
   const addressPos: Vector2d = useMemo(() => {
     return {
       x:
@@ -130,101 +185,115 @@ const LinkNode: FC<Props> = ({ data, onLineContextMenu }) => {
     if (onLineContextMenu) onLineContextMenu(evt);
   };
   return (
-    <>
-      <Circle x={basePos.x} y={basePos.y} radius={5} fill="red"></Circle>
-      <Group x={basePos.x} y={basePos.y}>
+    <Group x={basePos.x} y={basePos.y}>
+      <Label
+        x={fromIFNamePos.x}
+        y={fromIFNamePos.y}
+        rotation={(rotation * 180) / Math.PI}
+        width={tagWidth}
+        align="center"
+        height={tagHeight}
+        verticalAlign="middle"
+      >
+        <Tag fill="green" opacity={0.7} />
         <Text
-          text={link.id}
-          x={linkNamePos.x}
-          y={linkNamePos.y}
+          text={link.from.name}
+          fontFamily="Calibri"
+          fontSize={15}
           width={tagWidth}
           align="center"
           height={tagHeight}
           verticalAlign="middle"
-          rotation={(rotation * 180) / Math.PI}
         />
-        <Label
-          x={fromIFNamePos.x}
-          y={fromIFNamePos.y}
-          rotation={(rotation * 180) / Math.PI}
-          width={tagWidth}
-          align="center"
-          height={tagHeight}
-          verticalAlign="middle"
-        >
-          <Tag fill="green" opacity={0.7} />
-          <Text
-            text={link.from.name}
-            fontFamily="Calibri"
-            fontSize={15}
-            width={tagWidth}
-            align="center"
-            height={tagHeight}
-            verticalAlign="middle"
-          />
-        </Label>
-        <Label
-          x={toIFNamePos.x}
-          y={toIFNamePos.y}
-          rotation={(rotation * 180) / Math.PI}
-          width={tagWidth}
-          align="center"
-          height={tagHeight}
-          verticalAlign="middle"
-        >
-          <Tag fill="green" opacity={0.7} />
-          <Text
-            text={link.to.name}
-            fontFamily="Calibri"
-            fontSize={15}
-            width={tagWidth}
-            align="center"
-            height={tagHeight}
-            verticalAlign="middle"
-          />
-        </Label>
+      </Label>
+      <Label
+        x={toIFNamePos.x}
+        y={toIFNamePos.y}
+        rotation={(rotation * 180) / Math.PI}
+        width={tagWidth}
+        align="center"
+        height={tagHeight}
+        verticalAlign="middle"
+      >
+        <Tag fill="green" opacity={0.7} />
         <Text
-          text={address}
-          x={addressPos.x}
-          y={addressPos.y}
-          rotation={(rotation * 180) / Math.PI}
+          text={link.to.name}
+          fontFamily="Calibri"
+          fontSize={15}
           width={tagWidth}
           align="center"
           height={tagHeight}
           verticalAlign="middle"
         />
-        <Line
-          stroke="black"
-          strokeWidth={5}
-          points={points}
-          onContextMenu={onLineContextMenuHandler}
-        />
-        <Circle
-          x={linkNamePos.x}
-          y={linkNamePos.y}
-          radius={5}
-          fill="red"
-        ></Circle>
-        <Circle
-          x={fromIFNamePos.x}
-          y={fromIFNamePos.y}
-          radius={5}
-          fill="blue"
-        ></Circle>
-        <Circle
-          x={toIFNamePos.x}
-          y={toIFNamePos.y}
-          radius={5}
-          fill="blue"
-        ></Circle>
-        <Circle
-          x={addressPos.x}
-          y={addressPos.y}
-          radius={5}
-          fill="green"
-        ></Circle>
-      </Group>
-    </>
+      </Label>
+      <Text
+        text={linkAddress}
+        fontSize={15}
+        fontStyle="bold"
+        x={addressPos.x}
+        y={addressPos.y}
+        rotation={(rotation * 180) / Math.PI}
+        width={tagWidth}
+        align="center"
+        height={tagHeight}
+        verticalAlign="middle"
+      />
+      <Text
+        text={fromIFAddress}
+        fontSize={15}
+        fontStyle="bold"
+        x={fromIFAddressPos.x}
+        y={fromIFAddressPos.y}
+        rotation={(rotation * 180) / Math.PI}
+        width={tagWidth}
+        align="center"
+        height={tagHeight}
+        verticalAlign="middle"
+      />
+      <Text
+        text={toIFAddress}
+        fontSize={15}
+        fontStyle="bold"
+        x={toIFAddressPos.x}
+        y={toIFAddressPos.y}
+        rotation={(rotation * 180) / Math.PI}
+        width={tagWidth}
+        align="center"
+        height={tagHeight}
+        verticalAlign="middle"
+      />
+      <Line
+        stroke="black"
+        strokeWidth={5}
+        points={points}
+        onContextMenu={onLineContextMenuHandler}
+      />
+      <Circle x={0} y={0} radius={5} fill="red"></Circle>
+      <Circle
+        x={fromIFNamePos.x}
+        y={fromIFNamePos.y}
+        radius={5}
+        fill="blue"
+      ></Circle>
+      <Circle
+        x={toIFNamePos.x}
+        y={toIFNamePos.y}
+        radius={5}
+        fill="blue"
+      ></Circle>
+      <Circle
+        x={addressPos.x}
+        y={addressPos.y}
+        radius={5}
+        fill="green"
+      ></Circle>
+      <Circle
+        x={toIFAddressPos.x}
+        y={toIFAddressPos.y}
+        radius={5}
+        fill="green"
+      ></Circle>
+    </Group>
   );
 };
 
