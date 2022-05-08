@@ -75,7 +75,6 @@ const DraftingBoard: React.FC = () => {
   };
 
   const syncRouterNodeMapWithIntent = (nodes: NodeIntent[]) => {
-    console.log("called syncRouterNodeMapWithIntent");
     const newMap: Map<string, RouterNodeData> = new Map();
     nodes.map((node, idx) => {
       const targetNode = routerNodeMap.get(node.id);
@@ -97,7 +96,6 @@ const DraftingBoard: React.FC = () => {
   };
 
   const syncLinkNodeMapWithIntent = (links: LinkIntent[]) => {
-    console.log("called syncLinkNodeMapWithIntent");
     const newMap: Map<string, LinkNodeData> = new Map();
     links.map((link) => {
       const fromRouterNode = routerNodeMap.get(link.from.p.id);
@@ -269,13 +267,11 @@ const DraftingBoard: React.FC = () => {
   }, [linkNodeMenu]);
 
   useEffect(() => {
-    console.log("useEffect trigger: intent");
     syncRouterNodeMapWithIntent(intent.nodes);
     syncLinkNodeMapWithIntent(intent.links);
   }, [intent]);
 
   useEffect(() => {
-    console.log("useEffect trigger: routerNodeMap");
     syncLinkNodeMapWithIntent(intent.links);
   }, [routerNodeMap]);
 
@@ -353,7 +349,6 @@ const DraftingBoard: React.FC = () => {
   };
 
   const renderContextMenu = useMemo(() => {
-    console.log("[call] renderContextMenu");
     if (contextMenu.isOpen && contextMenu.pos) {
       return (
         <ContextMenu

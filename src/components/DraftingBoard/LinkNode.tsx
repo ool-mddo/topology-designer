@@ -16,7 +16,6 @@ type Props = {
 };
 
 const LinkNode: FC<Props> = ({ data, onLineContextMenu }) => {
-  console.log("LinkNode Rendered");
   const { link, fromPos, toPos } = data;
   const tagHeight = 20;
   const tagWidth = 100;
@@ -127,7 +126,6 @@ const LinkNode: FC<Props> = ({ data, onLineContextMenu }) => {
     ];
   }, [fromPos, toPos, verticalHosei]);
   const onLineContextMenuHandler = (evt: KonvaEventObject<PointerEvent>) => {
-    console.log("onLineContextMenu");
     evt.evt.preventDefault();
     if (onLineContextMenu) onLineContextMenu(evt);
   };

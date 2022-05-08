@@ -29,7 +29,6 @@ const RouterNode: FC<Props> = ({
   onContextMenu,
   draggable = false,
 }) => {
-  console.log("[render] RouterNode");
   const { node, pos } = data;
   const nodeWidth = 100;
   const nodeHeight = 100;
@@ -47,7 +46,6 @@ const RouterNode: FC<Props> = ({
     }
   };
   const onMouseUpHandler = (e: KonvaEventObject<MouseEvent>) => {
-    console.log("onMouseDownHandler");
     e.target.preventDefault();
     if (onMouseUp) {
       onMouseUp(e);
@@ -55,7 +53,6 @@ const RouterNode: FC<Props> = ({
   };
   const onMouseDownHandler = (e: KonvaEventObject<MouseEvent>) => {
     e.target.preventDefault();
-    console.log("onMouseDownHandler");
     if (onMouseDown) {
       onMouseDown(e);
     }

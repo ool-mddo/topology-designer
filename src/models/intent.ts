@@ -274,7 +274,6 @@ export class Interface {
   }
 
   public dst(): Interface | undefined {
-    console.log(this.p.p.links);
     const filtered = this.p.p.links.find(
       (link) => link.from.id === this.id || link.to.id === this.id
     );
