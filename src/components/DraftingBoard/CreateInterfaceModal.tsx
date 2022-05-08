@@ -1,6 +1,13 @@
-import { Button, Dialog, DialogTitle, TextField } from "@mui/material";
-import Intent, { Node as NodeIntent } from "models/intent";
 import React, { FC, MouseEvent, useState } from "react";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Stack,
+  TextField,
+} from "@mui/material";
+import Intent, { Node as NodeIntent } from "models/intent";
 import { useRecoilState, useResetRecoilState, useSetRecoilState } from "recoil";
 import { createInterfaceModalState, intentState } from "state";
 
@@ -49,20 +56,34 @@ const CreateInterfaceModal: FC<Props> = ({ isOpen, node }) => {
           return;
         }
       }}
+      fullWidth
     >
-      <DialogTitle>Create Interface Form</DialogTitle>
-      <TextField
-        id="outlined-basic"
-        label="Interface Name"
-        variant="outlined"
-        value={formData.name}
-        onChange={(e) => {
-          setFormData({ ...formData, name: e.target.value });
-        }}
-        required
-      />
-      <Button onClick={onClickCreateBtn}>Create</Button>
-      <Button onClick={onClickCancelBtn}>Cancel</Button>
+      <DialogTitle>Create Interface</DialogTitle>
+      <DialogContent dividers={true}>
+        <Stack spacing={2}>
+          <TextField
+            id="outlined-basic"
+            label="Interface Name"
+            variant="outlined"
+            value={formData.name}
+            onChange={(e) => {
+              setFormData({ ...formData, name: e.target.value });
+            }}
+            required
+          />
+          <Stack
+            direction="row"
+            justifyContent="flex-end"
+            alignItems="center"
+            spacing={2}
+          >
+            <Button onClick={onClickCreateBtn} variant="contained">
+              Create
+            </Button>
+            <Button onClick={onClickCancelBtn}>Cancel</Button>
+          </Stack>
+        </Stack>
+      </DialogContent>
     </Dialog>
   );
 };
