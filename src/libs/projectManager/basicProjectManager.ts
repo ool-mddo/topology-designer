@@ -116,6 +116,6 @@ export default class BasicProjectManager extends AbstractProjectManager {
         },
       ]);
     });
-    return JSON.stringify(basicProject);
+    return JSON.stringify(basicProject, null, 4);
   }
 }
