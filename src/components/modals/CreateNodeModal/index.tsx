@@ -21,7 +21,7 @@ type Props = {
 
 type FormData = {
   name: string;
-  type: NodeType;
+  type: string;
   mgmtAddr: string;
   loopback: string;
 };
@@ -31,7 +31,7 @@ const CreateNodeModal: FC<Props> = ({ isOpen }) => {
   const setCreateNodeModal = useSetRecoilState(createNodeModalState);
   const [formData, setFormData] = useState<FormData>({
     name: "",
-    type: "UnKnown",
+    type: "Unknown",
     mgmtAddr: "",
     loopback: "",
   });
@@ -42,9 +42,14 @@ const CreateNodeModal: FC<Props> = ({ isOpen }) => {
       return;
     }
     const newIntent = new Intent(intent.id, intent.nodes, intent.links);
-    newIntent.addNode(formData.name, formData.type, formData.mgmtAddr, {
-      IPv4: formData.loopback,
-    });
+    newIntent.addNode(
+      formData.name,
+      formData.type as NodeType,
+      formData.mgmtAddr !== "" ? formData.mgmtAddr : undefined,
+      {
+        IPv4: formData.loopback !== "" ? formData.loopback : undefined,
+      }
+    );
     setIntent(newIntent);
     setCreateNodeModal({ isOpen: false });
     return;
@@ -70,15 +75,14 @@ const CreateNodeModal: FC<Props> = ({ isOpen }) => {
       <DialogContent dividers={true}>
         <Stack spacing={2}>
           <TextField
-            id="outlined-basic"
             label="Name"
             variant="outlined"
             value={formData.name}
             onChange={(e) => {
               setFormData({ ...formData, name: e.target.value });
             }}
-            required
             type="text"
+            required
           />
           <FormControl fullWidth required>
             <InputLabel id="node-type-select-label">Type</InputLabel>
@@ -90,6 +94,7 @@ const CreateNodeModal: FC<Props> = ({ isOpen }) => {
               onChange={(e) => {
                 setFormData({ ...formData, type: e.target.value as NodeType });
               }}
+              defaultValue="Unknown"
             >
               <MenuItem value={"XRv"}>XRv</MenuItem>
               <MenuItem value={"vMX"}>vMX</MenuItem>

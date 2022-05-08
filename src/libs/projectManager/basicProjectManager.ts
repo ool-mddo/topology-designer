@@ -1,49 +1,57 @@
 import AbstractProjectManager from "./abs";
 import { Project } from "models/project";
-import Intent, { Node as NodeIntent } from "models/intent";
+import Intent, { Node as NodeIntent, NodeType } from "models/intent";
 import CanvasData, { SerializedCanvasData } from "models/canvas";
 
-type ProjectA = {
-  intent: ProjectAIntent;
+type BasicProject = {
+  intent: BasicProjectIntent;
   canvas: SerializedCanvasData;
 };
 
-type ProjectAIntent = {
+type BasicProjectIntent = {
   Name: string;
   Topology: {
-    Nodes: ProjectANode[];
-    Links: ProjectALink[];
+    Nodes: BasicProjectNode[];
+    Links: BasicProjectLink[];
   };
 };
 
-type ProjectANode = {
+type BasicProjectNode = {
   Hostname: string;
-  InstanceType: string;
-  ManagementAddr: string;
+  InstanceType: NodeType | null;
+  ManagementAddr: string | null;
   Loopback: {
-    IPv4: string;
+    IPv4: string | null;
   };
-  Interfaces: ProjectAInterface[];
+  Interfaces: BasicProjectInterface[];
 };
 
-type ProjectAInterface = {
+type BasicProjectInterface = {
   Name: string;
-  IPv4: string;
+  IPv4: string | null;
 };
 
-type ProjectALink = {
+type BasicProjectLink = {
   Hostname: string;
   InterfaceName: string;
 }[];
 
-export default class ProjectAManager extends AbstractProjectManager {
+export default class BasicProjectManager extends AbstractProjectManager {
   public importFromJSON(json: string): Project {
-    const jsonData: ProjectA = JSON.parse(json);
+    const jsonData: BasicProject = JSON.parse(json);
     const intent = new Intent(jsonData.intent.Name);
     jsonData.intent.Topology.Nodes.map((node) => {
-      const nodeIntent = new NodeIntent(intent, node.Hostname);
+      const nodeIntent = new NodeIntent(
+        intent,
+        node.Hostname,
+        node.InstanceType ?? "UnKnown",
+        node.ManagementAddr ?? undefined,
+        {
+          IPv4: node.Loopback.IPv4 ?? undefined,
+        }
+      );
       node.Interfaces.map((i) => {
-        nodeIntent.addInterface(i.Name);
+        nodeIntent.addInterface(i.Name, i.IPv4 ?? undefined);
       });
       intent.updateNode(nodeIntent);
     });
@@ -70,7 +78,7 @@ export default class ProjectAManager extends AbstractProjectManager {
   public exportToJSON(project: Project): string {
     const intent = project.intent;
     const canvasData = project.canvas?.toJSON() ?? { routerNodeMap: [] };
-    const projectA: ProjectA = {
+    const basicProject: BasicProject = {
       intent: {
         Name: intent.id,
         Topology: {
@@ -81,25 +89,23 @@ export default class ProjectAManager extends AbstractProjectManager {
       canvas: canvasData,
     };
     intent.nodes.map((node) => {
-      const interfaces: ProjectAInterface[] = [];
+      const interfaces: BasicProjectInterface[] = [];
       node.interfaces.map((i) => {
         interfaces.push({
           Name: i.name,
-          IPv4: "10.0.0.1/30",
+          IPv4: i.ipv4Addr ?? null,
         });
       });
-      projectA.intent.Topology.Nodes.push({
+      basicProject.intent.Topology.Nodes.push({
         Hostname: node.name,
-        InstanceType: "XRv",
-        ManagementAddr: "10.254.0.101",
-        Loopback: {
-          IPv4: "10.255.1.1/32",
-        },
+        InstanceType: node.type,
+        ManagementAddr: node.mgmtAddr ?? null,
+        Loopback: { IPv4: node.loopback.IPv4 ?? null },
         Interfaces: interfaces,
       });
     });
     intent.links.map((link) => {
-      projectA.intent.Topology.Links.push([
+      basicProject.intent.Topology.Links.push([
         {
           Hostname: link.from.p.name,
           InterfaceName: link.from.name,
@@ -110,6 +116,6 @@ export default class ProjectAManager extends AbstractProjectManager {
         },
       ]);
     });
-    return JSON.stringify(projectA);
+    return JSON.stringify(basicProject);
   }
 }

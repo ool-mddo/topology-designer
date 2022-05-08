@@ -28,9 +28,9 @@ import CreateNodeModal from "components/modals/CreateNodeModal";
 import CreateInterfaceModal from "components/modals/CreateInterfaceModal";
 import bgImg from "assets/images/bg.png";
 import LinkNodeMenu from "./LinkNodeMenu";
-import ProjectAManager from "libs/projectManager/projectAManager";
 import CanvasData from "models/canvas";
 import ContextMenu from "./ContextMenu";
+import BasicProjectManager from "libs/projectManager/basicProjectManager";
 type LinkNodeMap = Map<string, LinkNodeData>;
 
 const Wrapper = styled(Box)({
@@ -297,7 +297,7 @@ const DraftingBoard: React.FC = () => {
   };
 
   const onClickDownloadIntent = () => {
-    const projectManager = new ProjectAManager();
+    const projectManager = new BasicProjectManager();
     const canvasData = new CanvasData();
     Array.from(routerNodeMap.values()).map((routerNode) => {
       canvasData.routerNodeMap.set(routerNode.node.id, {
@@ -322,7 +322,7 @@ const DraftingBoard: React.FC = () => {
     fileReader.onload = (e) => {
       if (e.target === null) return;
       if (typeof e.target.result === "string") {
-        const projectManager = new ProjectAManager();
+        const projectManager = new BasicProjectManager();
         const project = projectManager.importFromJSON(e.target.result);
         const newMap: Map<string, RouterNodeData> = new Map();
         if (project.canvas) {

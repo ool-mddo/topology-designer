@@ -37,7 +37,8 @@ const CreateInterfaceModal: FC<Props> = ({ isOpen, node }) => {
       return;
     }
     const newIntent = new Intent(intent.id, intent.nodes, intent.links);
-    node.addInterface(formData.name, formData.ipv4Addr);
+    const ipv4Addr = formData.ipv4Addr !== "" ? formData.ipv4Addr : undefined;
+    node.addInterface(formData.name, ipv4Addr);
     newIntent.updateNode(node);
     setIntent(newIntent);
     resetCreateInterfaceModal();
