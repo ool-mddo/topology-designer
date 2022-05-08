@@ -4,6 +4,6 @@ import App from "./App";
 
 test("renders message", () => {
   render(<App />);
-  const element = screen.getByText(/Visualizer/i);
+  const element = screen.getByText(/Network Drawer/i);
   expect(element).toBeInTheDocument();
 });
