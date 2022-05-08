@@ -1,59 +1,60 @@
 import styled from "@emotion/styled";
 import { Cable, NearMe } from "@mui/icons-material";
-import { Paper } from "@mui/material";
+import { IconButton, Paper, Stack, Tooltip } from "@mui/material";
 import { Box } from "@mui/system";
-import Portal from "components/Portal";
 import React from "react";
-import { useSetRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import { modeState } from "state";
 
-const Wrapper = styled(Paper)({
-  position: "absolute",
-  width: "50px",
-  height: "500px",
-  top: "100px",
-  left: "30px",
-  zIndex: 1000,
-  cursor: "pointer",
-  display: "flex",
-  flexFlow: "column",
-  alignItems: "center",
-  justifyItems: "center",
-});
-
-const IconWrapper = styled(Box)({
-  display: "flex",
-  alignItems: "center",
-  justifyItems: "center",
-});
-
 const Toolbar: React.FC = () => {
-  const setMode = useSetRecoilState(modeState);
+  const [mode, setMode] = useRecoilState(modeState);
   return (
-    <Portal>
-      <Wrapper>
-        <IconWrapper
-          onClick={() => {
-            setMode({ currentMode: "View" });
-          }}
+    <Box
+      sx={{
+        position: "absolute",
+        top: "100px",
+        left: "30px",
+        cursor: "pointer",
+      }}
+    >
+      <Paper>
+        <Stack
+          direction="row"
+          justifyContent="flex-start"
+          alignItems="center"
+          spacing={1}
         >
-          <NearMe
-            style={{
-              width: "30px",
-              height: "30px",
-              padding: "10px",
-            }}
-          />
-        </IconWrapper>
-        <IconWrapper
-          onClick={() => {
-            setMode({ currentMode: "CreateLink" });
-          }}
-        >
-          <Cable style={{ width: "30px", height: "30px", padding: "10px" }} />
-        </IconWrapper>
-      </Wrapper>
-    </Portal>
+          <Tooltip title="View Mode">
+            <IconButton
+              onClick={() => {
+                setMode({ currentMode: "View" });
+              }}
+              color="primary"
+              sx={{
+                backgroundColor:
+                  mode.currentMode === "View" ? "#bdbdbd" : "white",
+              }}
+            >
+              <NearMe />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Create Link Mode">
+            <IconButton
+              onClick={() => {
+                setMode({ currentMode: "CreateLink" });
+              }}
+              color="primary"
+              sx={{
+                backgroundColor:
+                  mode.currentMode === "CreateLink" ? "#bdbdbd" : "white",
+              }}
+            >
+              <Cable />
+            </IconButton>
+          </Tooltip>
+        </Stack>
+      </Paper>
+    </Box>
   );
 };
 
