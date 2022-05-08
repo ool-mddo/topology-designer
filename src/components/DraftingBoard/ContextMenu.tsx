@@ -29,12 +29,6 @@ const ContextMenu: FC<Props> = ({
   return (
     <Paper sx={{ width: 320, position: "absolute", left: pos.x, top: pos.y }}>
       <MenuList dense>
-        <MenuItem onClick={onClickNewIntentMenu}>
-          <ListItemIcon>
-            <Article fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>New Intent</ListItemText>
-        </MenuItem>
         <MenuItem onClick={onClickAddNodeMenu}>
           <ListItemIcon>
             <img src={RouterImg} style={{ width: "20px", height: "20px" }} />
@@ -73,6 +67,12 @@ const ContextMenu: FC<Props> = ({
             }}
             hidden
           />
+        </MenuItem>
+        <MenuItem onClick={onClickNewIntentMenu}>
+          <ListItemIcon>
+            <Article fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>New Intent</ListItemText>
         </MenuItem>
       </MenuList>
     </Paper>
