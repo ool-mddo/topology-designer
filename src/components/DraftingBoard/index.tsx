@@ -120,7 +120,7 @@ const DraftingBoard: React.FC = () => {
           onChangePos={(newPos) => {
             updateRouterNodePos(routerNodeData.node.id, newPos);
           }}
-          onMouseDown={(e) => {
+          onMouseDown={() => {
             setDrawCreateLink({
               ...drawCreateLink,
               isDrawing: true,
@@ -133,7 +133,7 @@ const DraftingBoard: React.FC = () => {
               });
             }
           }}
-          onMouseUp={(e) => {
+          onMouseUp={() => {
             resetDrawCreateLink();
             if (mode.currentMode === "CreateLink") {
               if (createLink.fromNode) {
@@ -277,10 +277,10 @@ const DraftingBoard: React.FC = () => {
     syncLinkNodeMapWithIntent(intent.links);
   }, [routerNodeMap]);
 
-  const onMouseDownHandler = (evt: KonvaEventObject<MouseEvent>) => {
+  const onMouseDownHandler = () => {
     resetLinkNodeMenu();
   };
-  const onMouseMove = (evt: KonvaEventObject<MouseEvent>) => {
+  const onMouseMove = () => {
     const stage = stageRef.current?.getStage();
     if (stage === undefined) return;
     const pointerPos = stage.getPointerPosition() ?? { x: 0, y: 0 };
@@ -292,7 +292,7 @@ const DraftingBoard: React.FC = () => {
       });
     }
   };
-  const onMouseUpHandler = (evt: KonvaEventObject<MouseEvent>) => {
+  const onMouseUpHandler = () => {
     resetDrawCreateLink();
   };
 

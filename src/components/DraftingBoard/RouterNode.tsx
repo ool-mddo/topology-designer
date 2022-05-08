@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from "react";
+import React, { FC } from "react";
 import { Vector2d } from "konva/lib/types";
 import { Group, Text, Image } from "react-konva";
 import useImage from "use-image";
