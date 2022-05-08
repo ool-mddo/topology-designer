@@ -1,18 +1,29 @@
-import { Cable, NearMe } from "@mui/icons-material";
-import { IconButton, Paper, Stack, Tooltip } from "@mui/material";
-import { Box } from "@mui/system";
 import React from "react";
-import { useRecoilState } from "recoil";
-import { modeState } from "state";
+import { Cable, Menu, NearMe } from "@mui/icons-material";
+import { Box, IconButton, Paper, Stack, Tooltip } from "@mui/material";
+import { useRecoilState, useResetRecoilState, useSetRecoilState } from "recoil";
+import { modeState, contextMenuState } from "state";
 
 const Toolbar: React.FC = () => {
+  const setContextMenu = useSetRecoilState(contextMenuState);
+  const resetContextMenu = useResetRecoilState(contextMenuState);
+  const outsideClickHandler = () => {
+    resetContextMenu();
+    removeOutsideClickHandler();
+  };
+  const addOutsideClickHandler = () => {
+    document.body.addEventListener("click", outsideClickHandler);
+  };
+  const removeOutsideClickHandler = () => {
+    document.body.removeEventListener("click", outsideClickHandler);
+  };
   const [mode, setMode] = useRecoilState(modeState);
   return (
     <Box
       sx={{
         position: "absolute",
-        top: "100px",
-        left: "30px",
+        top: 100,
+        left: 30,
         cursor: "pointer",
       }}
     >
@@ -23,6 +34,17 @@ const Toolbar: React.FC = () => {
           alignItems="center"
           spacing={1}
         >
+          <Tooltip title="Menu">
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                setContextMenu({ isOpen: true, pos: { x: 30, y: 150 } });
+                addOutsideClickHandler();
+              }}
+            >
+              <Menu />
+            </IconButton>
+          </Tooltip>
           <Tooltip title="View Mode">
             <IconButton
               onClick={() => {
