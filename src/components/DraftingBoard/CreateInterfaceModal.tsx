@@ -8,7 +8,7 @@ import {
   TextField,
 } from "@mui/material";
 import Intent, { Node as NodeIntent } from "models/intent";
-import { useRecoilState, useResetRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState, useResetRecoilState } from "recoil";
 import { createInterfaceModalState, intentState } from "state";
 
 type Props = {
