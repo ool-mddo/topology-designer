@@ -18,6 +18,7 @@ type Props = {
 
 type FormData = {
   name: string;
+  ipv4Addr: string | undefined;
 };
 
 const CreateInterfaceModal: FC<Props> = ({ isOpen, node }) => {
@@ -27,6 +28,7 @@ const CreateInterfaceModal: FC<Props> = ({ isOpen, node }) => {
   );
   const [formData, setFormData] = useState<FormData>({
     name: "",
+    ipv4Addr: undefined,
   });
   const onClickCreateBtn = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -35,7 +37,7 @@ const CreateInterfaceModal: FC<Props> = ({ isOpen, node }) => {
       return;
     }
     const newIntent = new Intent(intent.id, intent.nodes, intent.links);
-    node.addInterface(formData.name);
+    node.addInterface(formData.name, formData.ipv4Addr);
     newIntent.updateNode(node);
     setIntent(newIntent);
     resetCreateInterfaceModal();
@@ -68,6 +70,17 @@ const CreateInterfaceModal: FC<Props> = ({ isOpen, node }) => {
             value={formData.name}
             onChange={(e) => {
               setFormData({ ...formData, name: e.target.value });
+            }}
+            required
+          />
+          <TextField
+            id="outlined-basic"
+            label="IPv4 Address"
+            variant="outlined"
+            value={formData.ipv4Addr ?? ""}
+            placeholder="192.168.1.1/30"
+            onChange={(e) => {
+              setFormData({ ...formData, ipv4Addr: e.target.value });
             }}
             required
           />

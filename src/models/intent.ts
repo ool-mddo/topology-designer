@@ -203,8 +203,11 @@ export class Node {
     return Array.from(this._interfaceMap.values());
   }
 
-  public addInterface(ifName: string) {
-    this._interfaceMap.set(ifName, new Interface(this, ifName));
+  public addInterface(
+    ifName: string,
+    ipv4Addr: string | undefined = undefined
+  ) {
+    this._interfaceMap.set(ifName, new Interface(this, ifName, ipv4Addr));
   }
 
   public rmInterface(ifName: string) {
@@ -230,7 +233,7 @@ export class Interface {
   private _p: Node | undefined = undefined;
   private _name: string | undefined = undefined;
   private _ipv4Addr: string | undefined = undefined;
-  constructor(p: Node, name: string, ipv4Addr = undefined) {
+  constructor(p: Node, name: string, ipv4Addr: string | undefined = undefined) {
     this.p = p;
     this.name = name;
     this.ipv4Addr = ipv4Addr;
