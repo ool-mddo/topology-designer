@@ -59,7 +59,8 @@ const DraftingBoard: React.FC = () => {
   const [createLink, setCreateLink] = useRecoilState(createLinkState);
   const [linkNodeMenu, setLinkNodeMenu] = useRecoilState(linkNodeMenuState);
   const resetLinkNodeMenu = useResetRecoilState(linkNodeMenuState);
-  const createNodeModal = useRecoilValue(createNodeModalState);
+  const [createNodeModal, setCreateNodeModalState] =
+    useRecoilState(createNodeModalState);
   const createInterfaceModal = useRecoilValue(createInterfaceModalState);
   const [routerNodeMenu, setRouterNodeMenu] =
     useRecoilState(routerNodeMenuState);
@@ -352,12 +353,17 @@ const DraftingBoard: React.FC = () => {
     setNewIntentDialog({ isOpen: true });
   };
 
+  const onClickAddNodeMenu = () => {
+    setCreateNodeModalState({ isOpen: true });
+  };
+
   const renderContextMenu = useMemo(() => {
     if (contextMenu.isOpen && contextMenu.pos) {
       return (
         <ContextMenu
           pos={contextMenu.pos}
           onClickNewIntentMenu={onClickNewIntent}
+          onClickAddNodeMenu={onClickAddNodeMenu}
           onClickExportIntentMenu={onClickDownloadIntent}
           onClickImportIntentMenu={onClickUploadIntent}
         />
