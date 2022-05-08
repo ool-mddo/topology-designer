@@ -1,5 +1,4 @@
 import React, { FC } from "react";
-import styled from "@emotion/styled";
 import { Vector2d } from "konva/lib/types";
 import { useRecoilState, useResetRecoilState, useSetRecoilState } from "recoil";
 import {
@@ -7,16 +6,8 @@ import {
   intentState,
   routerNodeMenuState,
 } from "state";
-import { Box, MenuItem, MenuList, Paper, Typography } from "@mui/material";
+import { Box, MenuItem, MenuList, Paper } from "@mui/material";
 import Intent, { Node as NodeIntent } from "models/intent";
-
-const Wrapper = styled(Box)<{ pos: Vector2d }>(({ pos }) => ({
-  position: "absolute",
-  top: `${pos.y}px`,
-  left: `${pos.x}px`,
-  width: "200px",
-  height: "200px",
-}));
 
 type Props = {
   node: NodeIntent;
@@ -34,17 +25,11 @@ const RouterNodeMenu: FC<Props> = ({ node, pos }) => {
     resetMenu();
   };
   return (
-    <Wrapper
-      pos={pos}
-      onMouseLeave={(_) => {
-        resetMenu();
-      }}
-    >
-      <Paper style={{ width: "100%", height: "100%", padding: "5px" }}>
-        <Typography>{`Menu <<${node.name}>>`}</Typography>
-        <MenuList>
+    <Box component={"div"} onMouseLeave={() => resetMenu()}>
+      <Paper sx={{ width: 320, position: "absolute", left: pos.x, top: pos.y }}>
+        <MenuList dense>
           <MenuItem
-            onClick={(_) =>
+            onClick={() =>
               setCreateInterfaceModal({ isOpen: true, node: node })
             }
           >
@@ -53,7 +38,7 @@ const RouterNodeMenu: FC<Props> = ({ node, pos }) => {
           <MenuItem onClick={onClickDeleteBtn}>Delete Node</MenuItem>
         </MenuList>
       </Paper>
-    </Wrapper>
+    </Box>
   );
 };
 

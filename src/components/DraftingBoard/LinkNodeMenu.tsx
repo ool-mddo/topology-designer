@@ -1,7 +1,8 @@
 import React, { MouseEvent } from "react";
 import { Box, MenuItem, MenuList, Paper } from "@mui/material";
-import Portal from "components/Portal";
 import { Vector2d } from "konva/lib/types";
+import { useResetRecoilState } from "recoil";
+import { linkNodeMenuState } from "state";
 
 type Props = {
   pos: Vector2d;
@@ -9,24 +10,15 @@ type Props = {
 };
 
 const LinkNodeMenu: React.FC<Props> = ({ pos, onClickRemoveLink }) => {
+  const closeMenu = useResetRecoilState(linkNodeMenuState);
   return (
-    <Portal>
-      <Box
-        style={{
-          position: "absolute",
-          top: pos.y,
-          left: pos.x,
-          zIndex: 1000,
-          cursor: "pointer",
-        }}
-      >
-        <Paper>
-          <MenuList>
-            <MenuItem onClick={onClickRemoveLink}>Remove Link</MenuItem>
-          </MenuList>
-        </Paper>
-      </Box>
-    </Portal>
+    <Box component={"div"} onMouseLeave={() => closeMenu()}>
+      <Paper sx={{ width: 320, position: "absolute", left: pos.x, top: pos.y }}>
+        <MenuList dense>
+          <MenuItem onClick={onClickRemoveLink}>Delete Link</MenuItem>
+        </MenuList>
+      </Paper>
+    </Box>
   );
 };
 
