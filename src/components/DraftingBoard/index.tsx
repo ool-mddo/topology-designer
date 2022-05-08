@@ -8,6 +8,7 @@ import styled from "@emotion/styled";
 import Intent, { Node as NodeIntent, Link as LinkIntent } from "models/intent";
 import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil";
 import {
+  contextMenuState,
   createInterfaceModalState,
   createLinkState,
   createNodeModalState,
@@ -29,6 +30,7 @@ import bgImg from "assets/images/bg.png";
 import LinkNodeMenu from "./LinkNodeMenu";
 import ProjectAManager from "libs/projectManager/projectAManager";
 import CanvasData from "models/canvas";
+import ContextMenu from "./ContextMenu";
 type LinkNodeMap = Map<string, LinkNodeData>;
 
 const Wrapper = styled(Box)({
@@ -42,6 +44,8 @@ const Wrapper = styled(Box)({
 const DraftingBoard: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
   const stageRef = useRef<StageDOM>(null);
+  const [contextMenu, setContextMenu] = useRecoilState(contextMenuState);
+  const resetContextMenu = useResetRecoilState(contextMenuState);
   // const [routerNodeMap, setRouterNodeMap] = useState<RouterNodeMap>(new Map());
   const [routerNodeMap, setRouterNodeMap] = useRecoilState(routerNodeMapState);
   const [linkNodeMap, setLinkNodeMap] = useState<LinkNodeMap>(new Map());
@@ -341,6 +345,26 @@ const DraftingBoard: React.FC = () => {
     fileReader.readAsText(file);
   };
 
+  const renderContextMenu = useMemo(() => {
+    console.log("[call] renderContextMenu");
+    if (contextMenu.isOpen && contextMenu.pos) {
+      return <ContextMenu pos={contextMenu.pos} />;
+    } else {
+      return null;
+    }
+  }, [contextMenu]);
+
+  const onContextMenuHandler = (e: KonvaEventObject<PointerEvent>) => {
+    e.evt.preventDefault();
+    if (e.target !== e.currentTarget) return;
+    const pos: Vector2d = { x: e.evt.x, y: e.evt.y };
+    setContextMenu({
+      isOpen: true,
+      pos: pos,
+    });
+    document.body.addEventListener("click", () => resetContextMenu(), false);
+  };
+
   return (
     <Wrapper ref={ref}>
       <Stage
@@ -350,6 +374,7 @@ const DraftingBoard: React.FC = () => {
         onMouseDown={onMouseDownHandler}
         onMouseup={onMouseUpHandler}
         onMouseMove={onMouseMove}
+        onContextMenu={onContextMenuHandler}
       >
         <Layer>
           <Text text={`{x: ${mousePos.x}, y:${mousePos.y}}`} x={0} y={0} />
@@ -363,6 +388,7 @@ const DraftingBoard: React.FC = () => {
       {renderCreateInterfaceModal}
       {renderRouterNodeMenu}
       {renderLinkNodeMenu}
+      {renderContextMenu}
       <Toolbar
         onClickDownload={onClickDownloadIntent}
         onClickUpload={onClickUploadIntent}

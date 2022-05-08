@@ -103,3 +103,13 @@ export const createInterfaceModalState = atom<{
     node: null,
   },
 });
+
+export const contextMenuState = atom<{ isOpen: boolean; pos: Vector2d | null }>(
+  {
+    key: "ContextMenuState",
+    default: {
+      isOpen: false,
+      pos: null,
+    },
+  }
+);
