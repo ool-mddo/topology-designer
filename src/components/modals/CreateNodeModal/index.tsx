@@ -85,6 +85,7 @@ const CreateNodeModal: FC<Props> = ({ isOpen }) => {
             }}
             type="text"
             required
+            size="small"
           />
           <FormControl fullWidth required>
             <InputLabel id="node-type-select-label">Type</InputLabel>
@@ -97,6 +98,7 @@ const CreateNodeModal: FC<Props> = ({ isOpen }) => {
                 setFormData({ ...formData, type: e.target.value as NodeType });
               }}
               defaultValue="Unknown"
+              size="small"
             >
               <MenuItem value={"XRv"}>XRv</MenuItem>
               <MenuItem value={"vMX"}>vMX</MenuItem>
@@ -113,6 +115,7 @@ const CreateNodeModal: FC<Props> = ({ isOpen }) => {
             }}
             placeholder="10.254.0.100"
             required
+            size="small"
           />
           <TextField
             id="outlined-basic"
@@ -124,6 +127,7 @@ const CreateNodeModal: FC<Props> = ({ isOpen }) => {
             }}
             placeholder="10.255.1.2/32"
             required
+            size="small"
           />
           <Stack
             direction="row"
