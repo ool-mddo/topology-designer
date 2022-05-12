@@ -7,9 +7,10 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import Intent, { Node as NodeIntent } from "models/intent";
-import { useRecoilState, useResetRecoilState } from "recoil";
-import { createInterfaceModalState, intentState } from "state";
+import { Node as NodeIntent } from "models/intent";
+import { useResetRecoilState } from "recoil";
+import { createInterfaceModalState } from "state";
+import useIntent from "hooks/useIntent";
 
 type Props = {
   isOpen: boolean;
@@ -22,7 +23,7 @@ type FormData = {
 };
 
 const CreateInterfaceModal: FC<Props> = ({ isOpen, node }) => {
-  const [intent, setIntent] = useRecoilState(intentState);
+  const { updateNode } = useIntent();
   const resetCreateInterfaceModal = useResetRecoilState(
     createInterfaceModalState
   );
@@ -36,11 +37,9 @@ const CreateInterfaceModal: FC<Props> = ({ isOpen, node }) => {
       alert("その名前のインタフェースは登録されています");
       return;
     }
-    const newIntent = new Intent(intent.id, intent.nodes, intent.links);
     const ipv4Addr = formData.ipv4Addr !== "" ? formData.ipv4Addr : undefined;
     node.addInterface(formData.name, ipv4Addr);
-    newIntent.updateNode(node);
-    setIntent(newIntent);
+    updateNode(node);
     resetCreateInterfaceModal();
     return;
   };

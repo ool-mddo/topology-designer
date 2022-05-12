@@ -1,15 +1,15 @@
 import React, { FC, useMemo, useState } from "react";
 import { Vector2d } from "konva/lib/types";
-import { useRecoilState, useResetRecoilState, useSetRecoilState } from "recoil";
+import { useResetRecoilState, useSetRecoilState } from "recoil";
 import {
   createInterfaceModalState,
   editNodeModalState,
-  intentState,
   routerNodeMenuState,
 } from "state";
 import { Box, MenuItem, MenuList, Paper } from "@mui/material";
-import Intent, { Node as NodeIntent } from "models/intent";
+import { Node as NodeIntent } from "models/intent";
 import DeleteNodeDialog from "./DeleteNodeDialog";
+import useIntent from "hooks/useIntent";
 
 type Props = {
   node: NodeIntent;
@@ -17,11 +17,11 @@ type Props = {
 };
 
 const RouterNodeMenu: FC<Props> = ({ node, pos }) => {
+  const { removeNode } = useIntent();
   const setCreateInterfaceModal = useSetRecoilState(createInterfaceModalState);
   const setEditNodeModal = useSetRecoilState(editNodeModalState);
   const resetMenu = useResetRecoilState(routerNodeMenuState);
   const [isOpenDeleteNodeDialog, setIsOpenDeleteNodeDialog] = useState(false);
-  const [intent, setIntent] = useRecoilState(intentState);
   const onClickDeleteBtn = () => {
     setIsOpenDeleteNodeDialog(true);
   };
@@ -30,9 +30,7 @@ const RouterNodeMenu: FC<Props> = ({ node, pos }) => {
       <DeleteNodeDialog
         isOpen={isOpenDeleteNodeDialog}
         onDeleteNode={() => {
-          const newIntent = new Intent(intent.id, intent.nodes, intent.links);
-          newIntent.removeNodeByName(node.name);
-          setIntent(newIntent);
+          removeNode(node.id);
           setIsOpenDeleteNodeDialog(false);
           resetMenu();
         }}

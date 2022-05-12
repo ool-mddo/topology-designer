@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC, useRef } from "react";
+import React, { ChangeEvent, FC, useRef, MouseEvent } from "react";
 import {
   ListItemIcon,
   ListItemText,
@@ -26,30 +26,49 @@ const ContextMenu: FC<Props> = ({
   onClickExportIntentMenu,
 }) => {
   const importIntentMenuRef = useRef<HTMLInputElement | null>(null);
+  const onClickAddNodeMenuHandler = (e: MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
+    onClickAddNodeMenu();
+  };
+  const onClickNewIntentMenuHandler = (e: MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
+    onClickNewIntentMenu();
+  };
+  const onClickImportIntentMenuHandler = (e: MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
+    if (importIntentMenuRef.current === null) return;
+    importIntentMenuRef.current.click();
+  };
+  const onChangeImportIntentMenuHandler = (
+    e: ChangeEvent<HTMLInputElement>
+  ) => {
+    e.preventDefault();
+    if (e.target.files === null) return;
+    if (e.target.files.length > 0) {
+      const file = e.target.files[0];
+      onClickImportIntentMenu(file);
+    }
+  };
+  const onClickExportIntentMenuHandler = (e: MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
+    onClickExportIntentMenu();
+  };
   return (
     <Paper sx={{ width: 320, position: "absolute", left: pos.x, top: pos.y }}>
       <MenuList dense>
-        <MenuItem onClick={onClickAddNodeMenu}>
+        <MenuItem onClick={onClickAddNodeMenuHandler}>
           <ListItemIcon>
             <img src={RouterImg} style={{ width: "20px", height: "20px" }} />
           </ListItemIcon>
           <ListItemText>Add Node</ListItemText>
         </MenuItem>
-        <MenuItem
-          onClick={() => {
-            onClickExportIntentMenu();
-          }}
-        >
+        <MenuItem onClick={onClickExportIntentMenuHandler}>
           <ListItemIcon>
             <Download fontSize="small" />
           </ListItemIcon>
           <ListItemText>Export Intent（*.json）</ListItemText>
         </MenuItem>
-        <MenuItem
-          onClick={() => {
-            importIntentMenuRef.current?.click();
-          }}
-        >
+        <MenuItem onClick={onClickImportIntentMenuHandler}>
           <ListItemIcon>
             <Upload fontSize="small" />
           </ListItemIcon>
@@ -57,18 +76,11 @@ const ContextMenu: FC<Props> = ({
           <input
             type="file"
             ref={importIntentMenuRef}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => {
-              e.preventDefault();
-              if (e.target.files === null) return;
-              if (e.target.files.length > 0) {
-                const file = e.target.files[0];
-                onClickImportIntentMenu(file);
-              }
-            }}
+            onChange={onChangeImportIntentMenuHandler}
             hidden
           />
         </MenuItem>
-        <MenuItem onClick={onClickNewIntentMenu}>
+        <MenuItem onClick={onClickNewIntentMenuHandler}>
           <ListItemIcon>
             <Article fontSize="small" />
           </ListItemIcon>

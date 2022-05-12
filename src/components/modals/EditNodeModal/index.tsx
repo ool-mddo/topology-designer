@@ -11,9 +11,10 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import Intent, { Node, NodeType } from "models/intent";
-import { useRecoilState, useSetRecoilState } from "recoil";
-import { editNodeModalState, intentState } from "state";
+import { Node, NodeType } from "models/intent";
+import { useSetRecoilState } from "recoil";
+import { editNodeModalState } from "state";
+import useIntent from "hooks/useIntent";
 
 type Props = {
   isOpen: boolean;
@@ -28,7 +29,7 @@ type FormData = {
 };
 
 const EditNodeModal: FC<Props> = ({ isOpen, node }) => {
-  const [intent, setIntent] = useRecoilState(intentState);
+  const { intent, updateNode } = useIntent();
   const setEditNodeModal = useSetRecoilState(editNodeModalState);
   const [formData, setFormData] = useState<FormData>({
     name: node.name,
@@ -38,16 +39,14 @@ const EditNodeModal: FC<Props> = ({ isOpen, node }) => {
   });
   const onClickUpdateBtn = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const newIntent = new Intent(intent.id, intent.nodes, intent.links);
     const newNode = new Node(
-      newIntent,
+      intent,
       formData.name,
       formData.type as NodeType,
       formData.mgmtAddr !== "" ? formData.mgmtAddr : undefined,
       { IPv4: formData.loopback !== "" ? formData.loopback : undefined }
     );
-    newIntent.updateNode(newNode);
-    setIntent(newIntent);
+    updateNode(newNode);
     setEditNodeModal({ isOpen: false, node: null });
     return;
   };

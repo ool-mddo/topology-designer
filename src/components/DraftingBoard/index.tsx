@@ -5,7 +5,7 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { Vector2d } from "konva/lib/types";
 import { Box } from "@mui/system";
 import styled from "@emotion/styled";
-import Intent, { Node as NodeIntent, Link as LinkIntent } from "models/intent";
+import { Node as NodeIntent, Link as LinkIntent } from "models/intent";
 import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil";
 import {
   contextMenuState,
@@ -14,7 +14,6 @@ import {
   createNodeModalState,
   drawCreateLinkState,
   editNodeModalState,
-  intentState,
   linkNodeMenuState,
   modeState,
   newIntentDialogState,
@@ -35,6 +34,7 @@ import ContextMenu from "./ContextMenu";
 import BasicProjectManager from "libs/projectManager/basicProjectManager";
 import NewIntentDialog from "./NewIntentDialog";
 import EditNodeModal from "components/modals/EditNodeModal";
+import useIntent from "hooks/useIntent";
 type LinkNodeMap = Map<string, LinkNodeData>;
 
 const Wrapper = styled(Box)({
@@ -46,21 +46,20 @@ const Wrapper = styled(Box)({
 });
 
 const DraftingBoard: React.FC = () => {
+  const { intent, removeLink, loadIntent, resetIntent } = useIntent();
   const ref = useRef<HTMLDivElement>(null);
   const stageRef = useRef<StageDOM>(null);
   const [contextMenu, setContextMenu] = useRecoilState(contextMenuState);
   const resetContextMenu = useResetRecoilState(contextMenuState);
-  // const [routerNodeMap, setRouterNodeMap] = useState<RouterNodeMap>(new Map());
   const [routerNodeMap, setRouterNodeMap] = useRecoilState(routerNodeMapState);
   const resetRouterNodeMap = useResetRecoilState(routerNodeMapState);
   const [linkNodeMap, setLinkNodeMap] = useState<LinkNodeMap>(new Map());
   const [mousePos, setMousePos] = useState<Vector2d>({ x: 0, y: 0 });
-  const [intent, setIntent] = useRecoilState(intentState);
-  const resetIntent = useResetRecoilState(intentState);
   const mode = useRecoilValue(modeState);
   const [createLink, setCreateLink] = useRecoilState(createLinkState);
   const [linkNodeMenu, setLinkNodeMenu] = useRecoilState(linkNodeMenuState);
   const resetLinkNodeMenu = useResetRecoilState(linkNodeMenuState);
+
   const [createNodeModal, setCreateNodeModalState] =
     useRecoilState(createNodeModalState);
   const createInterfaceModal = useRecoilValue(createInterfaceModalState);
@@ -259,13 +258,7 @@ const DraftingBoard: React.FC = () => {
           onClickRemoveLink={() => {
             const targetLink = linkNodeMenu.link;
             if (targetLink) {
-              const newIntent = new Intent(
-                intent.id,
-                intent.nodes,
-                intent.links
-              );
-              newIntent.removeLink(targetLink.id);
-              setIntent(newIntent);
+              removeLink(targetLink.id);
               resetLinkNodeMenu();
             }
           }}
@@ -345,7 +338,7 @@ const DraftingBoard: React.FC = () => {
             }
           );
         }
-        setIntent(project.intent);
+        loadIntent(project.intent);
         setRouterNodeMap(newMap);
       }
     };
@@ -376,6 +369,10 @@ const DraftingBoard: React.FC = () => {
     }
   }, [contextMenu]);
 
+  const renderCreateNodeModal = useMemo(() => {
+    return <CreateNodeModal isOpen={createNodeModal.isOpen} />;
+  }, [createNodeModal]);
+
   const onContextMenuHandler = (e: KonvaEventObject<PointerEvent>) => {
     e.evt.preventDefault();
     if (e.target !== e.currentTarget) return;
@@ -384,7 +381,9 @@ const DraftingBoard: React.FC = () => {
       isOpen: true,
       pos: pos,
     });
-    document.body.addEventListener("click", () => resetContextMenu(), false);
+    document.body.addEventListener("click", () => {
+      resetContextMenu();
+    });
   };
 
   const renderNewIntentDialog = useMemo(() => {
@@ -428,7 +427,7 @@ const DraftingBoard: React.FC = () => {
           {renderDrawingCreateLink}
         </Layer>
       </Stage>
-      <CreateNodeModal isOpen={createNodeModal.isOpen} />
+      {renderCreateNodeModal}
       {renderEditNodeModal}
       {renderCreateLinkModal}
       {renderCreateInterfaceModal}

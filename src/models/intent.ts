@@ -1,6 +1,6 @@
 export type NodeType = "XRv" | "vMX" | "Unknown";
 
-type Loopback = {
+export type Loopback = {
   IPv4: string | undefined;
 };
 
@@ -31,16 +31,33 @@ export default class Intent {
 
   public set nodes(v: Node[]) {
     v.map((node) => {
-      const cloneNode = new Node(
-        this,
-        node.name,
-        node.type,
-        node.mgmtAddr,
-        node.loopback,
-        node.interfaces
-      );
-      this._nodeMap.set(this.makeNodeId(cloneNode.name), cloneNode);
+      const clonedNode = node.clone(this);
+      this._nodeMap.set(this.makeNodeId(clonedNode.name), clonedNode);
     });
+  }
+
+  public removeNode(nodeId: string) {
+    const targetNode = this._nodeMap.get(nodeId);
+    if (targetNode === undefined) return;
+    // remove links
+    targetNode.interfaces.map((i) => {
+      this.findLinksRelatedInterface(i).map((link) => {
+        this.removeLink(link.id);
+      });
+    });
+    this._nodeMap.delete(targetNode.id);
+  }
+
+  public removeNodeByName(name: string) {
+    const targetNode = this._nodeMap.get(this.makeNodeId(name));
+    if (targetNode === undefined) return;
+    // remove links
+    targetNode.interfaces.map((i) => {
+      this.findLinksRelatedInterface(i).map((link) => {
+        this.removeLink(link.id);
+      });
+    });
+    this._nodeMap.delete(targetNode.id);
   }
 
   public get links(): Link[] {
@@ -48,7 +65,11 @@ export default class Intent {
   }
 
   public set links(v: Link[]) {
-    v.map((link) => this.addLink(link.from, link.to));
+    this._linkMap = new Map();
+    v.map((link) => {
+      const clonedLink = link.clone(this);
+      this._linkMap.set(clonedLink.id, clonedLink);
+    });
   }
 
   public findNodeById(id: string): Node | undefined {
@@ -75,18 +96,6 @@ export default class Intent {
     this._nodeMap.set(node.id, node);
   }
 
-  public removeNodeByName(name: string) {
-    const targetNode = this._nodeMap.get(this.makeNodeId(name));
-    if (targetNode === undefined) return;
-    // remove links
-    targetNode.interfaces.map((i) => {
-      this.findLinksRelatedInterface(i).map((link) => {
-        this.removeLink(link.id);
-      });
-    });
-    this._nodeMap.delete(targetNode.id);
-  }
-
   public findLinksRelatedInterface(i: Interface) {
     return this.links.filter(
       (link) => link.from.id === i.id || link.to.id === i.id
@@ -111,6 +120,10 @@ export default class Intent {
       nodes: this.nodes,
       links: this.links,
     };
+  }
+
+  public clone(): Intent {
+    return new Intent(this.id, this.nodes, this.links);
   }
 }
 
@@ -194,8 +207,10 @@ export class Node {
   }
 
   public set interfaces(v: Interface[]) {
+    this._interfaceMap = new Map();
     v.map((i) => {
-      this.addInterface(i.name);
+      const clonedInterface = i.clone(this);
+      this._interfaceMap.set(clonedInterface.name, clonedInterface);
     });
   }
 
@@ -226,6 +241,17 @@ export class Node {
       loopback: this.loopback,
       interfaces: this.interfaces,
     };
+  }
+
+  public clone(clonedP: Intent): Node {
+    return new Node(
+      clonedP,
+      this.name,
+      this.type,
+      this.mgmtAddr,
+      this.loopback,
+      this.interfaces
+    );
   }
 }
 
@@ -293,6 +319,10 @@ export class Interface {
       ipv4Addr: this.ipv4Addr,
     };
   }
+
+  public clone(clonedP: Node): Interface {
+    return new Interface(clonedP, this.name, this.ipv4Addr);
+  }
 }
 
 export class Link {
@@ -356,5 +386,19 @@ export class Link {
       from: this.from,
       to: this.to,
     };
+  }
+
+  public clone(clonedP: Intent): Link {
+    const fromNode = clonedP.findNodeById(this.from.p.id);
+    const toNode = clonedP.findNodeById(this.to.p.id);
+    if (fromNode === undefined || toNode === undefined) {
+      throw new Error("not found node");
+    }
+    const fromI = fromNode.findInterface(this.from.name);
+    const toI = toNode.findInterface(this.to.name);
+    if (fromI === undefined || toI === undefined) {
+      throw new Error("not found interface");
+    }
+    return new Link(clonedP, fromI, toI);
   }
 }

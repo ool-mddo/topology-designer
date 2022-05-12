@@ -10,10 +10,11 @@ import {
   Select,
   Stack,
 } from "@mui/material";
-import Intent, { Node as NodeIntent } from "models/intent";
+import { Node as NodeIntent } from "models/intent";
 
-import { useRecoilState, useResetRecoilState } from "recoil";
-import { createLinkState, intentState } from "state";
+import { useResetRecoilState } from "recoil";
+import { createLinkState } from "state";
+import useIntent from "hooks/useIntent";
 type Props = {
   isOpen: boolean;
   fromNode: NodeIntent;
@@ -21,7 +22,7 @@ type Props = {
 };
 
 const CreateLinkModal: FC<Props> = ({ isOpen, fromNode, toNode }) => {
-  const [intent, setIntent] = useRecoilState(intentState);
+  const { addLink } = useIntent();
   const [fromInterfaceName, setFromInterfaceName] = useState("");
   const [toInterfaceName, setToInterfaceName] = useState("");
   const resetCreateLink = useResetRecoilState(createLinkState);
@@ -34,9 +35,7 @@ const CreateLinkModal: FC<Props> = ({ isOpen, fromNode, toNode }) => {
     const fromInterface = fromNode.findInterface(fromInterfaceName);
     const toInterface = toNode.findInterface(toInterfaceName);
     if (fromInterface && toInterface) {
-      const newIntent = new Intent(intent.id, intent.nodes, intent.links);
-      newIntent.addLink(fromInterface, toInterface);
-      setIntent(newIntent);
+      addLink(fromInterface, toInterface);
       resetCreateLink();
     } else {
       alert("インタフェースを指定してください");

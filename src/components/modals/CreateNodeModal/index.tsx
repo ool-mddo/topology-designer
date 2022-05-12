@@ -11,9 +11,10 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import Intent, { NodeType } from "models/intent";
-import { useRecoilState, useSetRecoilState } from "recoil";
-import { createNodeModalState, intentState } from "state";
+import { NodeType } from "models/intent";
+import { useSetRecoilState } from "recoil";
+import { createNodeModalState } from "state";
+import useIntent from "hooks/useIntent";
 
 type Props = {
   isOpen: boolean;
@@ -26,23 +27,24 @@ type FormData = {
   loopback: string;
 };
 
+const initFormData: FormData = {
+  name: "",
+  type: "Unknown",
+  mgmtAddr: "",
+  loopback: "",
+};
+
 const CreateNodeModal: FC<Props> = ({ isOpen }) => {
-  const [intent, setIntent] = useRecoilState(intentState);
+  const { intent, addNode } = useIntent();
   const setCreateNodeModal = useSetRecoilState(createNodeModalState);
-  const [formData, setFormData] = useState<FormData>({
-    name: "",
-    type: "Unknown",
-    mgmtAddr: "",
-    loopback: "",
-  });
+  const [formData, setFormData] = useState<FormData>(initFormData);
   const onClickCreateBtn = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (intent.findNodeByName(formData.name)) {
       alert("その名前のノードは登録されています");
       return;
     }
-    const newIntent = new Intent(intent.id, intent.nodes, intent.links);
-    newIntent.addNode(
+    addNode(
       formData.name,
       formData.type as NodeType,
       formData.mgmtAddr !== "" ? formData.mgmtAddr : undefined,
@@ -50,8 +52,8 @@ const CreateNodeModal: FC<Props> = ({ isOpen }) => {
         IPv4: formData.loopback !== "" ? formData.loopback : undefined,
       }
     );
-    setIntent(newIntent);
     setCreateNodeModal({ isOpen: false });
+    setFormData(initFormData);
     return;
   };
   const onClickCancelBtn = (e: MouseEvent<HTMLButtonElement>) => {
