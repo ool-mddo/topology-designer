@@ -10,15 +10,36 @@ const useIntent = () => {
     type: NodeType = "Unknown",
     mgmtAddr: string | undefined = undefined,
     loopback: Loopback | undefined = undefined,
-    interfaces: Interface[] = []
-  ) => {
+    interfaces: { name: string; ipv4Addr: string | undefined }[] = []
+  ): Node => {
     const cloneIntent = intent.clone();
-    cloneIntent.addNode(name, type, mgmtAddr, loopback, interfaces);
+    const node = cloneIntent.addNode(
+      name,
+      type,
+      mgmtAddr,
+      loopback,
+      interfaces
+    );
     setIntent(cloneIntent);
+    return node;
   };
   const updateNode = (node: Node) => {
     const cloneIntent = intent.clone();
     cloneIntent.updateNode(node);
+    setIntent(cloneIntent);
+  };
+  const addInterface = (
+    node: Node,
+    interfaceName: string,
+    ipv4Address: string
+  ) => {
+    const cloneIntent = intent.clone();
+    const targetNode = cloneIntent.findNodeById(node.id);
+    if (targetNode === undefined) {
+      throw new Error("not found node");
+    }
+    targetNode.addInterface(interfaceName, ipv4Address);
+    cloneIntent.updateNode(targetNode);
     setIntent(cloneIntent);
   };
   const removeNode = (nodeId: string) => {
@@ -51,6 +72,7 @@ const useIntent = () => {
     removeLink,
     loadIntent,
     resetIntent,
+    addInterface,
   };
 };
 

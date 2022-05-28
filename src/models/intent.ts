@@ -85,9 +85,13 @@ export default class Intent {
     type: NodeType = "Unknown",
     mgmtAddr: string | undefined = undefined,
     loopback: Loopback = { IPv4: undefined },
-    interfaces: Interface[] = []
+    interfaces: { name: string; ipv4Addr: string | undefined }[] = []
   ): Node {
-    const node = new Node(this, nodeName, type, mgmtAddr, loopback, interfaces);
+    const node = new Node(this, nodeName, type, mgmtAddr, loopback);
+    const ifs = interfaces.map((i) => {
+      return new Interface(node, i.name, i.ipv4Addr);
+    });
+    node.interfaces = ifs;
     this._nodeMap.set(node.id, node);
     return node;
   }
