@@ -1,0 +1,10 @@
+version: '3'
+services:
+  app:
+    build: .
+    ports:
+      - "${LISTEN_PORT:-3000}:3000"
+    volumes:
+      - ./public:/app/public
+      - ./src:/app/src
+      - ./tsconfig.json:/app/tsconfig.json
