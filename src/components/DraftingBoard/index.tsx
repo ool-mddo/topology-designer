@@ -32,6 +32,7 @@ import LinkNodeMenu from "./LinkNodeMenu";
 import CanvasData from "models/canvas";
 import ContextMenu from "./ContextMenu";
 import BasicProjectManager from "libs/projectManager/basicProjectManager";
+import BatfishL1topoProjectManager from "libs/projectManager/BatfishL1topoProjectManager";
 import NewIntentDialog from "./NewIntentDialog";
 import EditNodeModal from "components/modals/EditNodeModal";
 import useIntent from "hooks/useIntent";
@@ -345,6 +346,55 @@ const DraftingBoard: React.FC = () => {
     fileReader.readAsText(file);
   };
 
+  const onClickDownloadBatfishL1topo = () => {
+    const projectManager = new BatfishL1topoProjectManager();
+    const canvasData = new CanvasData();
+    Array.from(routerNodeMap.values()).map((routerNode) => {
+      canvasData.routerNodeMap.set(routerNode.node.id, {
+        nodeId: routerNode.node.id,
+        pos: routerNode.pos,
+        connPos: routerNode.connPos,
+      });
+    });
+    const fileData = projectManager.exportToJSON({
+      intent: intent,
+      canvas: canvasData,
+    });
+    const blob = new Blob([fileData], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const aTag = document.createElement("a");
+    aTag.href = url;
+    aTag.download = "layer1_topology.json";
+    aTag.click();
+  };
+  const onClickUploadBatfishL1topo = (file: File) => {
+    const fileReader = new FileReader();
+    fileReader.onload = (e) => {
+      if (e.target === null) return;
+      if (typeof e.target.result === "string") {
+        const projectManager = new BatfishL1topoProjectManager();
+        const project = projectManager.importFromJSON(e.target.result);
+        const newMap: Map<string, RouterNodeData> = new Map();
+        if (project.canvas) {
+          Array.from(project.canvas.routerNodeMap.values()).map(
+            (routerNode) => {
+              const target = project.intent.findNodeById(routerNode.nodeId);
+              if (target === undefined) return;
+              newMap.set(target.id, {
+                node: target,
+                pos: routerNode.pos,
+                connPos: routerNode.connPos,
+              });
+            }
+          );
+        }
+        loadIntent(project.intent);
+        setRouterNodeMap(newMap);
+      }
+    };
+    fileReader.readAsText(file);
+  };
+
   const onClickNewIntent = () => {
     setNewIntentDialog({ isOpen: true });
   };
@@ -362,6 +412,8 @@ const DraftingBoard: React.FC = () => {
           onClickAddNodeMenu={onClickAddNodeMenu}
           onClickExportIntentMenu={onClickDownloadIntent}
           onClickImportIntentMenu={onClickUploadIntent}
+          onClickExportBatfishL1topoMenu={onClickDownloadBatfishL1topo}
+          onClickImportBatfishL1topoMenu={onClickUploadBatfishL1topo}
         />
       );
     } else {
