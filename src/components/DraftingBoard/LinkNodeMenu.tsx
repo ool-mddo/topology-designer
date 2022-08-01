@@ -43,7 +43,9 @@ const LinkNodeMenu: React.FC<Props> = ({ pos, links, onClickRemoveLink }) => {
   };
   return (
     <Box component={"div"} onMouseLeave={() => closeMenu()}>
-      <Paper sx={{ width: 360, position: "absolute", left: pos.x, top: pos.y }}>
+      <Paper
+        sx={{ width: "auto", position: "absolute", left: pos.x, top: pos.y }}
+      >
         <MenuList dense>
           {links.map((link) => {
             return (
