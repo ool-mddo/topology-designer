@@ -93,13 +93,13 @@ export const routerNodeMenuState = atom<{
 
 export const linkNodeMenuState = atom<{
   isOpen: boolean;
-  link: Link | null;
+  links: Link[];
   pos: Vector2d | null;
 }>({
   key: "LinkNodeMenuState",
   default: {
     isOpen: false,
-    link: null,
+    links: [],
     pos: null,
   },
 });
