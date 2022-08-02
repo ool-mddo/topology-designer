@@ -5,7 +5,7 @@ import { Circle, Group, Label, Line, Tag, Text } from "react-konva";
 import { KonvaEventObject } from "konva/lib/Node";
 
 export type LinkNodeData = {
-  link: Link;
+  links: Link[];
   fromPos: Vector2d;
   toPos: Vector2d;
 };
@@ -16,25 +16,39 @@ type Props = {
 };
 
 const LinkNode: FC<Props> = ({ data, onLineContextMenu }) => {
-  const { link, fromPos, toPos } = data;
+  const { links, fromPos, toPos } = data;
+  if (links.length === 0) {
+    throw new Error("invalid props, links must not be empty.");
+  }
   const tagHeight = 20;
   const tagWidth = 100;
   const offsetY = 35;
   const nodeIconR = 25;
+
+  /**
+   * LinkNode component show first link information when has multiple links.
+   */
+  const firstLinkFromIF = links[0].from;
+  const firstLinkToIF = links[0].to;
+
+  const hasMultipleLinks: boolean = useMemo(() => {
+    return links.length > 1;
+  }, [links]);
+
   const linkAddress: string = useMemo(() => {
-    const fromIpv4Addr = data.link.from.ipv4Addr;
-    const toIpv4Addr = data.link.to.ipv4Addr;
+    const fromIpv4Addr = firstLinkFromIF.ipv4Addr;
+    const toIpv4Addr = firstLinkToIF.ipv4Addr;
     if (fromIpv4Addr && toIpv4Addr) {
       return fromIpv4Addr;
     }
     return "";
-  }, [data.link.from.ipv4Addr, data.link.to.ipv4Addr]);
+  }, [firstLinkFromIF.ipv4Addr, firstLinkToIF.ipv4Addr]);
   const fromIFAddress = useMemo(() => {
-    return link.from.ipv4Addr ?? "";
-  }, [link.from.ipv4Addr]);
+    return firstLinkFromIF.ipv4Addr ?? "";
+  }, [firstLinkFromIF.ipv4Addr]);
   const toIFAddress = useMemo(() => {
-    return link.to.ipv4Addr ?? "";
-  }, [link.to.ipv4Addr]);
+    return firstLinkToIF.ipv4Addr ?? "";
+  }, [firstLinkToIF.ipv4Addr]);
   const rotation = useMemo(() => {
     return Math.atan((toPos.y - fromPos.y) / (toPos.x - fromPos.x));
   }, [fromPos, toPos]);
@@ -158,6 +172,12 @@ const LinkNode: FC<Props> = ({ data, onLineContextMenu }) => {
       };
     }
   }, [fromPos, toPos, horizontalHosei, isFromBase]);
+  const linkNumPos: Vector2d = useMemo(() => {
+    return {
+      x: (toPos.x - fromPos.x) / 2 - (tagWidth / 2) * horizontalHosei.x,
+      y: (toPos.y - fromPos.y) / 2 - (tagWidth / 2) * horizontalHosei.y,
+    };
+  }, [fromPos, toPos, horizontalHosei, verticalHosei]);
   const addressPos: Vector2d = useMemo(() => {
     return {
       x:
@@ -197,7 +217,7 @@ const LinkNode: FC<Props> = ({ data, onLineContextMenu }) => {
       >
         <Tag fill="green" opacity={0.7} />
         <Text
-          text={link.from.name}
+          text={firstLinkFromIF.name}
           fontFamily="Calibri"
           fontSize={15}
           width={tagWidth}
@@ -217,7 +237,7 @@ const LinkNode: FC<Props> = ({ data, onLineContextMenu }) => {
       >
         <Tag fill="green" opacity={0.7} />
         <Text
-          text={link.to.name}
+          text={firstLinkToIF.name}
           fontFamily="Calibri"
           fontSize={15}
           width={tagWidth}
@@ -238,6 +258,28 @@ const LinkNode: FC<Props> = ({ data, onLineContextMenu }) => {
         height={tagHeight}
         verticalAlign="middle"
       />
+      {hasMultipleLinks && (
+        <Label
+          x={linkNumPos.x}
+          y={linkNumPos.y}
+          rotation={(rotation * 180) / Math.PI}
+          width={tagWidth}
+          align="center"
+          height={tagHeight}
+          verticalAlign="middle"
+        >
+          <Tag fill="green" opacity={0.7} />
+          <Text
+            text={links.length.toString()}
+            fontFamily="Calibri"
+            fontSize={15}
+            width={tagWidth}
+            align="center"
+            height={tagHeight}
+            verticalAlign="middle"
+          />
+        </Label>
+      )}
       <Text
         text={fromIFAddress}
         fontSize={15}
@@ -293,6 +335,14 @@ const LinkNode: FC<Props> = ({ data, onLineContextMenu }) => {
         radius={5}
         fill="green"
       ></Circle>
+      {hasMultipleLinks && (
+        <Circle
+          x={linkNumPos.x}
+          y={linkNumPos.y}
+          radius={5}
+          fill="red"
+        ></Circle>
+      )}
     </Group>
   );
 };

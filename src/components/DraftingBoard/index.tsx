@@ -105,19 +105,29 @@ const DraftingBoard: React.FC = () => {
   };
 
   const syncLinkNodeMapWithIntent = (links: LinkIntent[]) => {
-    const newMap: Map<string, LinkNodeData> = new Map();
+    const newLinkMap: Map<string, LinkNodeData> = new Map();
     links.map((link) => {
-      const fromRouterNode = routerNodeMap.get(link.from.p.id);
-      const toRouterNode = routerNodeMap.get(link.to.p.id);
-      if (fromRouterNode && toRouterNode) {
-        newMap.set(link.id, {
-          link: link,
-          fromPos: fromRouterNode.connPos,
-          toPos: toRouterNode.connPos,
+      const fromNodeId = link.from.p.id;
+      const toNodeId = link.to.p.id;
+      const key = fromNodeId + toNodeId;
+      const fromNode = routerNodeMap.get(fromNodeId);
+      const toNode = routerNodeMap.get(toNodeId);
+      if (!(fromNode && toNode)) return;
+      const data = newLinkMap.get(key);
+      if (data !== undefined) {
+        newLinkMap.set(key, {
+          ...data,
+          links: [...data.links, link],
+        });
+      } else {
+        newLinkMap.set(key, {
+          fromPos: fromNode.connPos,
+          toPos: toNode.connPos,
+          links: [link],
         });
       }
     });
-    setLinkNodeMap(newMap);
+    setLinkNodeMap(newLinkMap);
   };
 
   const renderRouterNodes = useMemo(() => {
@@ -171,7 +181,7 @@ const DraftingBoard: React.FC = () => {
   }, [routerNodeMap, mode, createLink]);
 
   const renderLinkNodes = useMemo(() => {
-    return Array.from(linkNodeMap.values()).map((linkNodeData) => {
+    return Array.from(linkNodeMap.entries()).map(([key, linkNodeData]) => {
       return (
         <LinkNode
           data={linkNodeData}
@@ -182,11 +192,11 @@ const DraftingBoard: React.FC = () => {
             if (!pos) return;
             setLinkNodeMenu({
               isOpen: true,
-              link: linkNodeData.link,
+              links: linkNodeData.links,
               pos: pos,
             });
           }}
-          key={`LinkNode-${linkNodeData.link.id}`}
+          key={`LinkNode-${key}`}
         />
       );
     });
@@ -256,12 +266,10 @@ const DraftingBoard: React.FC = () => {
       return (
         <LinkNodeMenu
           pos={linkNodeMenu.pos}
-          onClickRemoveLink={() => {
-            const targetLink = linkNodeMenu.link;
-            if (targetLink) {
-              removeLink(targetLink.id);
-              resetLinkNodeMenu();
-            }
+          links={linkNodeMenu.links}
+          onClickRemoveLink={(targetLinkId) => {
+            removeLink(targetLinkId);
+            resetLinkNodeMenu();
           }}
         />
       );
