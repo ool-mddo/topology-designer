@@ -30,6 +30,9 @@ const ContextMenu: FC<Props> = ({
   onClickExportBatfishL1topoMenu,
 }) => {
   const importIntentMenuRef = useRef<HTMLInputElement | null>(null);
+  const importIntentBatfishL1topoMenuRef = useRef<HTMLInputElement | null>(
+    null
+  );
   const onClickAddNodeMenuHandler = (e: MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     onClickAddNodeMenu();
@@ -43,10 +46,12 @@ const ContextMenu: FC<Props> = ({
     if (importIntentMenuRef.current === null) return;
     importIntentMenuRef.current.click();
   };
-  const onClickImportBatfishL1topoMenuHandler = (e: MouseEvent<HTMLElement>) => {
+  const onClickImportBatfishL1topoMenuHandler = (
+    e: MouseEvent<HTMLElement>
+  ) => {
     e.stopPropagation();
-    if (importIntentMenuRef.current === null) return;
-    importIntentMenuRef.current.click();
+    if (importIntentBatfishL1topoMenuRef.current === null) return;
+    importIntentBatfishL1topoMenuRef.current.click();
   };
   const onChangeImportIntentMenuHandler = (
     e: ChangeEvent<HTMLInputElement>
@@ -72,7 +77,9 @@ const ContextMenu: FC<Props> = ({
     e.stopPropagation();
     onClickExportIntentMenu();
   };
-  const onClickExportBatfishL1topoMenuHandler = (e: MouseEvent<HTMLElement>) => {
+  const onClickExportBatfishL1topoMenuHandler = (
+    e: MouseEvent<HTMLElement>
+  ) => {
     e.stopPropagation();
     onClickExportBatfishL1topoMenu();
   };
@@ -116,7 +123,7 @@ const ContextMenu: FC<Props> = ({
           <ListItemText>Import Batfish layer1_topology.json</ListItemText>
           <input
             type="file"
-            ref={importIntentMenuRef}
+            ref={importIntentBatfishL1topoMenuRef}
             onChange={onChangeImportBatfishL1topoMenuHandler}
             hidden
           />
